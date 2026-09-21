@@ -5,12 +5,12 @@
 
 // flattened 1D std::vector<double> (size $N \times N$) to avoid nested std::vector<std::vector<double>> pointer indirection.
 
-class weightMatrix{
+class WeightMatrix{
 private:
     /* data */
 public:
-    weightMatrix(std::vector<double> matrix);
-    ~weightMatrix() = default;
+    WeightMatrix(std::vector<double> matrix);
+    ~WeightMatrix() = default;
 
 
 
