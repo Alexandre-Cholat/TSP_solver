@@ -7,9 +7,16 @@
 
 class WeightMatrix{
 private:
-    /* data */
+    std::vector<double> flat_map;
+    size_t map_size;
 public:
-    WeightMatrix(std::vector<double> matrix);
+    // construct from 1D vector
+    WeightMatrix(size_t dim, std::vector<double> matrix): map_size(dim), flat_map(std::move(matrix)){};
+
+    //construct from 2D vector
+    WeightMatrix(size_t dim, std::vector<std::vector<size_t>> matrix);
+
+
     ~WeightMatrix() = default;
 
 
