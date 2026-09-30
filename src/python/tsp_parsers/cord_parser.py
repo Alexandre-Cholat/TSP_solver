@@ -16,12 +16,10 @@ from .base_parser import BaseParser
 
 # matrix as 2d np array
 
-# then we compute pairwise Euclidean distance
-
-# then we convert matrix to lower triangle 1d arrayX
 class CoordParser(BaseParser):
+    
     def parse(self):
-        dim = None
+        dim = 0
         matrix = None
         reading_coords = False
 
@@ -61,3 +59,22 @@ class CoordParser(BaseParser):
 
         return dim, matrix
 
+
+    # then we compute pairwise Euclidean distance
+
+    # then we convert matrix to lower triangle 1d arrayX
+    def compute_distance_matrix(self, cords_matrix):
+        dim = len(cords_matrix)
+        matrix = np.zeros((dim, dim))  # init empty np array
+
+        # for i in dim
+            # calulate pairwise Euclidean distance from i to all others (strictly greater idx than i), fill in matrix
+        for i in range(dim):
+            for j in range(i, dim):
+                dist = np.linalg.norm(cords_matrix[i] - cords_matrix[j])
+                matrix[i][j] = dist
+                matrix[j][i] = dist  # symmetric
+
+        # flatten matrix to lower triangle 1d arrayX and return it
+        lower_triangle = matrix[np.tril_indices(dim, k=-1)]
+        return lower_triangle
