@@ -22,7 +22,6 @@ from .base_parser import BaseParser
 class CoordParser(BaseParser):
     def parse(self):
         dim = None
-        matrix = np.zeros((dim, dim))  # Initialize empty matrix of size dim x dim
 
         reading_coords = False
 
@@ -35,7 +34,8 @@ class CoordParser(BaseParser):
 
                 # 1. Extract DIMENSION
                 if line.startswith("DIMENSION"):
-                    dimension = int(line.split(":")[-1].strip())
+                    dim = int(line.split(":")[-1].strip())
+                    matrix = np.zeros((dim, dim))  # Initialize empty matrix of size dim x dim
                     continue
 
                 # 2. Check for start of coordinates section
