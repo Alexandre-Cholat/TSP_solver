@@ -2,19 +2,12 @@ import numpy as np
 import gzip
 from .base_parser import BaseParser
 
-# extract: DIMENSION (line 4), 
-# then calc matrix for every node i following NODE_COORD_SECTION (starting line 7)
-# NODE_COORD_SECTION
+# extract: DIMENSION 
+# then calc matrix for every node i following NODE_COORD_SECTION :
 # 1 565.0 575.0
 # 2 25.0 185.0
 # 3 345.0 750.0
 # idx float float
-
-
-#...
-# EOF (line idx_n +1)
-
-# matrix as 2d np array
 
 class CoordParser(BaseParser):
     
