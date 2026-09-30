@@ -2,7 +2,7 @@
 # download requirements: uv pip install -r requirements.txt
 # add requirements : uv pip freeze > requirements.txt
 
-from stp.io import CoordParser, LowerTriParser
+from tsp_parsers import CoordParser, LowerTriParser
 
 if __name__ == "__main__":
     file_path = "berlin52.tsp.gz"  # or "berlin52.opt.tour.gz"
