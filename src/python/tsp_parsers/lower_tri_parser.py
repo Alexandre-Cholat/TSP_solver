@@ -1,7 +1,7 @@
 from .base_parser import BaseParser
 
 # activate uv with: source .venv/bin/activate
-# download requirements: uv pip install -r requirements.txt
+# download frequirements: uv pip install -r requirements.txt
 # add requirements : uv pip freeze > requirements.txt
 
 class LowerTriParser(BaseParser):
