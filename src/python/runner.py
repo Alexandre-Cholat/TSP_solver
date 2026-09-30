@@ -1,20 +1,18 @@
-# activate uv with: source .venv/bin/activate
-# download requirements: uv pip install -r requirements.txt
-# add requirements : uv pip freeze > requirements.txt
-
 from tsp_parsers import CoordParser, LowerTriParser
 
-
 def main():
-    # Once you reference the classes below, they will not be grayed out
-    p = CoordParser("/home/alexandre/Downloads/berlin52.tsp.gz")
+    # Test 1: Coordinate file parsing
+    coord_p = CoordParser("/Users/amissa/Documents/GitHub/TSP_solver/ali535.tsp.gz")
+    dim1, weights1 = coord_p.parse()
     
-    dim, cords_matrix = p.parse()
-    print(f"Extracted Dimension: {dim}")
-    print(f"Total Nodes Parsed: {len(cords_matrix)}")
-    
-    # Display the first 5 parsed nodes
-    for i in range(5):
-        print(f"Node {i}: {cords_matrix[i]}")
+    print("--- CoordParser Output ---")
+    print(f"Dimension: {dim1}")
+    print(f"Total Weights in Lower Triangle: {len(weights1)}")
+    print(f"First 5 Distances: {weights1[:5]}\n")
+
+    # Test 2: Lower Triangle matrix file parsing (if you have one)
+    # tri_p = LowerTriParser("/path/to/ali535.tsp.gz")
+    # dim2, weights2 = tri_p.parse()
+
 if __name__ == "__main__":
     main()

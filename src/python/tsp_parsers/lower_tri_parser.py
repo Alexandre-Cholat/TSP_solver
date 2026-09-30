@@ -1,8 +1,5 @@
+import numpy as np
 from .base_parser import BaseParser
-
-# activate uv with: source .venv/bin/activate
-# download frequirements: uv pip install -r requirements.txt
-# add requirements : uv pip freeze > requirements.txt
 
 class LowerTriParser(BaseParser):
     def parse(self):
@@ -17,6 +14,12 @@ class LowerTriParser(BaseParser):
             elif reading_matrix:
                 if line == "EOF":
                     break
-                matrix_data.extend([float(val) for val in line.split()])
+                
+                # Safely convert tokens, skipping non-numeric entries if any exist
+                for val in line.split():
+                    try:
+                        matrix_data.append(float(val))
+                    except ValueError:
+                        continue
 
-        return {"dimension": self.dimension, "weights": matrix_data}
+        return self.dimension, np.array(matrix_data)

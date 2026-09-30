@@ -7,7 +7,7 @@ class BaseParser(ABC):
         self.dimension = None
 
     def read_lines(self):
-    # Shared utility: open both .gz and plain text transparently
+        """Shared utility: open both .gz and plain text transparently."""
         if self.filepath.endswith(".gz"):
             with gzip.open(self.filepath, mode="rt", encoding="utf-8") as f:
                 yield from (line.strip() for line in f if line.strip())

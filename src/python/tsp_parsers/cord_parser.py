@@ -1,73 +1,58 @@
 import numpy as np
-import gzip
 from .base_parser import BaseParser
-
-# extract: DIMENSION 
-# then calc matrix for every node i following NODE_COORD_SECTION :
-# 1 565.0 575.0
-# 2 25.0 185.0
-# 3 345.0 750.0
-# idx float float
 
 class CoordParser(BaseParser):
     
     def parse(self):
-        dim = 0
-        matrix = None
         reading_coords = False
+        coords_list = []
 
-        # Open the .gz file in text mode (mode = 'rt')
-        with gzip.open(self.filepath, mode="rt", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
+        # 1. Read through lines using BaseParser's read_lines utility
+        for line in self.read_lines():
+            if line.startswith("DIMENSION"):
+                self.dimension = int(line.split(":")[-1].strip())
+                continue
 
-                # 1. Extract DIMENSION
-                if line.startswith("DIMENSION"):
-                    dim = int(line.split(":")[-1].strip())
-                    matrix = np.zeros((dim, 2))  # Initialize empty matrix of size dim x 2 for coordinates
-                    continue
+            if line.startswith("NODE_COORD_SECTION"):
+                reading_coords = True
+                continue
 
-                # 2. Check for start of coordinates section
-                if line.startswith("NODE_COORD_SECTION"):
-                    reading_coords = True
-                    continue
+            if reading_coords:
+                if line == "EOF":
+                    break
 
-                # 3. Stop if we reach the end of the section or file
-                if reading_coords:
-                    if line in ("EOF"):
-                        break
+                parts = line.split()
+                if len(parts) >= 3:
+                    node_id = int(parts[0]) - 1  # 1-indexed to 0-indexed
+                    x = float(parts[1])
+                    y = float(parts[2])
+                    coords_list.append((node_id, x, y))
 
-                    # Parse cords: node_id, x, y
-                    parts = line.split()
-                    if len(parts) >= 3:
-                        node_id = int(parts[0])
-                        x = float(parts[1])
-                        y = float(parts[2])
-                        matrix[node_id - 1][0] = x
-                        matrix[node_id - 1][1] = y
+        # 2. Sort by node_id to ensure proper ordering and store matrix
+        coords_list.sort(key=lambda item: item[0])
+        coords_matrix = np.array([[x, y] for _, x, y in coords_list])
 
+        # 3. Compute lower triangular distance array
+        lower_tri_weights = self.compute_distance_matrix(coords_matrix)
 
+        # Return standardized format: (dimension, lower_triangular_weights_1d)
+        return self.dimension, lower_tri_weights
 
-        return dim, matrix
+    def compute_distance_matrix(self, coords_matrix: np.ndarray) -> np.ndarray:
+        """
+        Calculates pairwise Euclidean distances rounded to integer (TSPLIB standard) 
+        and flattens the matrix into 1D lower-triangular format (LOWER_DIAG_ROW).
+        """
+        dim = len(coords_matrix)
+        dist_matrix = np.zeros((dim, dim))
 
-
-    # then we compute pairwise Euclidean distance
-
-    # then we convert matrix to lower triangle 1d arrayX
-    def compute_distance_matrix(self, cords_matrix):
-        dim = len(cords_matrix)
-        matrix = np.zeros((dim, dim))  # init empty np array
-
-        # for i in dim
-            # calulate pairwise Euclidean distance from i to all others (strictly greater idx than i), fill in matrix
         for i in range(dim):
-            for j in range(i, dim):
-                dist = np.linalg.norm(cords_matrix[i] - cords_matrix[j])
-                matrix[i][j] = dist
-                matrix[j][i] = dist  # symmetric
+            for j in range(i + 1, dim):
+                d = np.linalg.norm(coords_matrix[i] - coords_matrix[j])
+                dist = round(d)  # Standard TSPLIB rounding for Euclidean distance
+                dist_matrix[i][j] = dist
+                dist_matrix[j][i] = dist
 
-        # flatten matrix to lower triangle 1d arrayX and return it
-        lower_triangle = matrix[np.tril_indices(dim, k=-1)]
-        return lower_triangle
+        # Extract lower triangular entries (k=-1 excludes diagonal)
+        tril_indices = np.tril_indices(dim, k=-1)
+        return dist_matrix[tril_indices]
