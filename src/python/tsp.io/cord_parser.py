@@ -1,3 +1,6 @@
+
+from .base_parser import BaseParser
+import numpy as np
 # extract: DIMENSION (line 4), 
 # then calc matrix for every node i following NODE_COORD_SECTION (starting line 7)
 # NODE_COORD_SECTION
@@ -14,11 +17,7 @@
 # then we compute pairwise Euclidean distance
 # matrix as 2d np array
 
-# then we convert matrix to lower triangle 1d array
-
-import numpy as np
-import gzip
-
+# then we convert matrix to lower triangle 1d arrayX
 class cord_parser:
 
     def parse(filepath):
@@ -61,4 +60,3 @@ class cord_parser:
 
         return dim, matrix
 
-    
