@@ -1,6 +1,7 @@
-
-from .base_parser import BaseParser
 import numpy as np
+import gzip
+from .base_parser import BaseParser
+
 # extract: DIMENSION (line 4), 
 # then calc matrix for every node i following NODE_COORD_SECTION (starting line 7)
 # NODE_COORD_SECTION
@@ -18,16 +19,15 @@ import numpy as np
 # matrix as 2d np array
 
 # then we convert matrix to lower triangle 1d arrayX
-class cord_parser:
-
-    def parse(filepath):
+class CoordParser(BaseParser):
+    def parse(self):
         dim = None
         matrix = np.zeros((dim, dim))  # Initialize empty matrix of size dim x dim
 
         reading_coords = False
 
         # Open the .gz file in text mode (mode = 'rt')
-        with gzip.open(filepath, mode="rt", encoding="utf-8") as f:
+        with gzip.open(self.filepath, mode="rt", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
