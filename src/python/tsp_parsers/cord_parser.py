@@ -14,15 +14,15 @@ from .base_parser import BaseParser
 #...
 # EOF (line idx_n +1)
 
+# matrix as 2d np array
 
 # then we compute pairwise Euclidean distance
-# matrix as 2d np array
 
 # then we convert matrix to lower triangle 1d arrayX
 class CoordParser(BaseParser):
     def parse(self):
         dim = None
-
+        matrix = None
         reading_coords = False
 
         # Open the .gz file in text mode (mode = 'rt')
@@ -35,7 +35,7 @@ class CoordParser(BaseParser):
                 # 1. Extract DIMENSION
                 if line.startswith("DIMENSION"):
                     dim = int(line.split(":")[-1].strip())
-                    matrix = np.zeros((dim, dim))  # Initialize empty matrix of size dim x dim
+                    matrix = np.zeros((dim, 2))  # Initialize empty matrix of size dim x 2 for coordinates
                     continue
 
                 # 2. Check for start of coordinates section
@@ -54,7 +54,8 @@ class CoordParser(BaseParser):
                         node_id = int(parts[0])
                         x = float(parts[1])
                         y = float(parts[2])
-                        matrix[node_id - 1] = (x, y)
+                        matrix[node_id - 1][0] = x
+                        matrix[node_id - 1][1] = y
 
 
 
