@@ -6,9 +6,9 @@ def main():
     # build orchestrator here... can be broken into sub functions
     # first decide which parser to use
 
-    # then parse. for example : 
-    coord_p = CoordParser("ali535.tsp.gz")
-    dim1, parsed_array = coord_p.parse()
+    # then parse. for testing : 
+    parsed_array = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float64)
+
     # pass parsed array to cpp
     fast_engine.process_inplace(parsed_array)
     # calculates and returns an array of size dim +1
