@@ -11,7 +11,7 @@ def main():
 
  
     # cpp calculates and returns an array of size dim +1
-    processed = fast_engine.process_pybind11(parsed_array)
+    output_array = fast_engine.process_pybind11(parsed_array)
 
 
 
