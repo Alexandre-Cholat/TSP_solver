@@ -1,16 +1,22 @@
 from tsp_parsers import CoordParser, LowerTriParser
 import numpy as np
+import fast_engine
 
 def main():
     # build orchestrator here... can be broken into sub functions
     # first decide which parser to use
 
-    # then parse
+    # then parse. for example : 
+    coord_p = CoordParser("ali535.tsp.gz")
+    dim1, parsed_array = coord_p.parse()
+    # pass parsed array to cpp
+    fast_engine.process_inplace(parsed_array)
+    # calculates and returns an array of size dim +1
+    processed = fast_engine.process_and_return(parsed_array)
 
-    # pass pares array to cpp : returns an array of size dim +1
 
-    # print output in proper format
-    
+
+    # print output in proper format:
     output_array = np.array([ 1, 3, 5, 2, 4])   
     # from [ 1, 3, 5, 2, 4] to:
 
