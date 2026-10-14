@@ -28,7 +28,8 @@ class CoordParser(BaseParser):
                     y = float(parts[2])
                     coords_list.append((node_id, x, y))
 
-        # 2. Sort by node_id to ensure proper ordering and store matrix
+
+        # Sort by node_id to ensure proper ordering and store matrix
         coords_list.sort(key=lambda item: item[0])
         coords_matrix = np.array([[x, y] for _, x, y in coords_list])
 
@@ -55,4 +56,6 @@ class CoordParser(BaseParser):
 
         # Extract lower triangular entries (k=-1 excludes diagonal)
         tril_indices = np.tril_indices(dim, k=-1)
+
+        
         return dist_matrix[tril_indices]
