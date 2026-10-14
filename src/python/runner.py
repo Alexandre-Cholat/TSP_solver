@@ -1,18 +1,33 @@
 from tsp_parsers import CoordParser, LowerTriParser
 
 def main():
-    # Test 1: Coordinate file parsing
-    coord_p = CoordParser("ali535.tsp.gz")
-    dim1, weights1 = coord_p.parse()
-    
-    print("--- CoordParser Output ---")
-    print(f"Dimension: {dim1}")
-    print(f"Total Weights in Lower Triangle: {len(weights1)}")
-    print(f"First 5 Distances: {weights1[:5]}\n")
+    # build orchestrator here... can be broken into sub functions
+    # first decide which parser to use
 
-    # Test 2: Lower Triangle matrix file parsing (if you have one)
-    # tri_p = LowerTriParser("/path/to/ali535.tsp.gz")
-    # dim2, weights2 = tri_p.parse()
+    # then parse
+
+    # pass pares array to cpp : returns an array of size dim +1
+
+    # print output in proper format
+
+    # from [ 1, 3, 5, 2, 4] to:
+
+    
+    # NAME : example.tour
+    # TYPE : TOUR
+    # DIMENSION : 5
+    # 1
+    # 3
+    # 5
+    # 2
+    # 4
+    # -1
+    # EOF
+
+
+    return 1
+
+
 
 if __name__ == "__main__":
     main()
