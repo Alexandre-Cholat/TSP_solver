@@ -9,10 +9,9 @@ def main():
     # then parse. for testing : 
     parsed_array = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float64)
 
-    # pass parsed array to cpp
-    fast_engine.process_inplace(parsed_array)
-    # calculates and returns an array of size dim +1
-    processed = fast_engine.process_and_return(parsed_array)
+ 
+    # cpp calculates and returns an array of size dim +1
+    processed = fast_engine.process_pybind11(parsed_array)
 
 
 
