@@ -2,7 +2,7 @@ from tsp_parsers import CoordParser, LowerTriParser
 
 def main():
     # Test 1: Coordinate file parsing
-    coord_p = CoordParser("/Users/amissa/Documents/GitHub/TSP_solver/ali535.tsp.gz")
+    coord_p = CoordParser("ali535.tsp.gz")
     dim1, weights1 = coord_p.parse()
     
     print("--- CoordParser Output ---")
