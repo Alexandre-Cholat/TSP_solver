@@ -1,75 +1,68 @@
 cmake_minimum_required(VERSION 3.14)
-project(my_project)
+project(TSPsolver)
 
 # --- Global options ---
-# Use C++20 standard, change if needed
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Enable testing target build
+set(BUILD_TESTS ON)
+
+
+# Ensure executables build directly into build/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # --- Debug/Release configuration ---
-# By default, build in Release mode
-# To set the build type to Debug, use:
-#      cmake -DCMAKE_BUILD_TYPE=Debug ..
-# ------------------------------------
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# --- Compiler flags ---
-# Warning flags for all build types
+# --- Compiler flags for project sources ---
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
-# Debugging flags for Debug build
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-# Optimization flags for Release build
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # --- Directories ---
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/include)
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
-# --- Source variables ---
-file(GLOB SOURCES "${SOURCE_DIR}/*.cpp")
-file(GLOB HEADERS "${INCLUDE_DIR}/*.hpp")
+# --- Find Headers ---
+file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
 
-# Remove main.cpp from SOURCES
-# We must do so because main.cpp is not part of the library
-# and should not be compiled into it.
-# Instead, it will be compiled into the main executable.
-# Add here any other source files that should be excluded from the library.
-list(REMOVE_ITEM SOURCES "${SOURCE_DIR}/main.cpp")
+# --- Main Executable ---
+add_executable(TSPsolver ${SOURCE_DIR}/main.cpp ${HEADERS})
+target_include_directories(TSPsolver PRIVATE ${INCLUDE_DIR})
 
-# --- Including libraries ---
-add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
-target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
+# --- Tests Executable with GoogleTest ---
+enable_testing()
+file(GLOB TEST_SOURCES "${TEST_DIR}/*.cpp")
 
-# --- Main executable ---
-add_executable(main ${SOURCE_DIR}/main.cpp)
-target_link_libraries(main PRIVATE ${PROJECT_NAME})
-
-
-# --- External dependencies ---
-# Example with Boost program options (uncomment if needed)
-# find_package(Boost REQUIRED COMPONENTS program_options)
-# target_link_libraries(${PROJECT_NAME} PRIVATE Boost::boost)
-
-# --- Tests (optionnal) ---
-if(BUILD_TESTS)
+if(TEST_SOURCES)
   include(FetchContent)
+  
+  # Fetch latest GoogleTest
   FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG        v1.17.0
+    GIT_TAG        v1.14.0
+    SYSTEM # Treat GoogleTest headers as system headers to suppress external warnings
   )
+  
+  set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(googletest)
 
-  enable_testing()
-  file(GLOB TEST_SOURCES "${TEST_DIR}/*.cpp")
-  add_executable(tests ${TEST_SOURCES})
-  target_link_libraries(tests PRIVATE ${PROJECT_NAME} GTest::gtest_main)
+  # Disable -Werror specifically for GoogleTest targets
+  if(TARGET gtest)
+    target_compile_options(gtest PRIVATE -w)
+  endif()
+  if(TARGET gtest_main)
+    target_compile_options(gtest_main PRIVATE -w)
+  endif()
+
+  add_executable(tests ${TEST_SOURCES} ${HEADERS})
   target_include_directories(tests PRIVATE ${INCLUDE_DIR})
+  target_link_libraries(tests PRIVATE gtest_main)
   add_test(NAME tests COMMAND tests)
 endif()
-
-
