@@ -1,43 +1,37 @@
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h> // Enables automatic conversion between STL types and Python
+#include <pybind11/numpy.h>
+#include <pybind11/stl.h> // Required to auto-convert std::vector to Python lists
+#include <memory>
 #include <vector>
+#include "TrivialSolver.hpp"
 
 namespace py = pybind11;
 
-// test function
-py::array_t<double> process_pybind11(py::array_t<double> arr) {
-    py::buffer_info in_buf = arr.request();
-    double* in_ptr = static_cast<double*>(in_buf.ptr);
-
-    // Create a new NumPy array of the exact same shape
-    py::array_t<double> result(in_buf.shape);
-    py::buffer_info out_buf = result.request();
-    double* out_ptr = static_cast<double*>(out_buf.ptr);
-
-    // Fill the new array
-    for (ssize_t i = 0; i < in_buf.size; ++i) {
-        out_ptr[i] = in_ptr[i] + 10.0;
-    }
-
-    // Return the new array to Python
-    return result;
-}
-
-py::array_t<double> process_trivial(py::array_t<double> array){
-    // convert array to vector------- no!! info is a pointer!!
+std::vector<int> solve_tsp(py::array_t<double> array) {
     py::buffer_info info = array.request();
     double* data = static_cast<double*>(info.ptr);
-
-    // retrive the amount of nodes, passed as first element in runner.py
-    size_t nodes = data[0];
     
-    // build Solver
-    solver = std::make_unique<Trivial>();
-    return solver->solve(mat, nodes);
-} 
+    size_t nodes = static_cast<size_t>(data[0]);
+    int algo_type = static_cast<int>(data[1]);
+    double* mat = data + 2; 
 
-// This macro exposes the functions to Python under the name 'fast_engine'
-PYBIND11_MODULE(fast_engine, m) {
-    m.def("process_pybind11", &process_pybind11);
-    m.def("process_trivial", &process_trivial);
+    std::unique_ptr<Solver> solver;
+
+    if(algo_type == 1) {
+        solver = std::make_unique<TrivialSolver>();
+    }
+    elif(algo_type == 2) {
+        solver = std::make_unique<HeldKarpSolver>();
+    }
+    // add more algorithms here as needed
+    else {
+        throw std::invalid_argument("Unknown algo type");
+    }
+
+    // Pass the raw pointer to avoid copying the matrix
+    return solver->solve(mat, nodes); 
+}
+
+PYBIND11_MODULE(tsp_bindings, m) {
+    m.def("solve_tsp", &solve_tsp, "Solve TSP given a flattened lower matrix array");
 }

@@ -5,7 +5,8 @@ from tsp_parsers import CoordParser, LowerTriParser
 import numpy as np
 import fast_engine
 
-<<<<<<< HEAD
+#TODO : add function to insert dim and desired algo type as first two elements of the array to be passed to cpp engine.
+
 def main():
     # build orchestrator here... can be broken into sub functions
     # first decide which parser to use
@@ -15,7 +16,7 @@ def main():
 
  
     # cpp calculates and returns an array of size dim +1
-    output_array = fast_engine.process_pybind11(parsed_array)
+    output_array = fast_engine.solve_tsp(parsed_array)
 
 
 
@@ -38,7 +39,6 @@ def main():
     return 1
 
 
-=======
 def resolve_instance_path(filename: str) -> Path:
     path_obj = Path(filename)
     if path_obj.exists():
@@ -87,7 +87,6 @@ def main():
     print(f"Extracted Dimension: {dim}")
     print(f"Extracted Total Weights: {len(weights)}")
     print(f"Exported parsed data to: {export_path}")
->>>>>>> 577388b (C++ Trivial Algorithm)
 
 if __name__ == "__main__":
     main()
