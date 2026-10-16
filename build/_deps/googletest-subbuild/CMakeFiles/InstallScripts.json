@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/amissa/Documents/GitHub/TSP_solver/build/_deps/googletest-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
