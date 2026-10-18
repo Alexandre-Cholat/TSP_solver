@@ -7,8 +7,8 @@
 #include "Solver.hpp"
 #include "TrivialSolver.hpp"
 
-// usage: ./TSP_solver <instance_path> <output_path> [-m <algorithm>]
-// ./TSPsolver /home/alexandre/Documents/ai_m1/Programming/TSP_solver/ali535.tsp.gz /home/alexandre/Documents/ai_m1/Programming/TSP_solver/ali535.tsp.tour -m trivial
+// usage: ./build/TSP_solver <instance_path> <output_path> [-m <algorithm>]
+// ./build/TSPsolver /home/alexandre/Documents/ai_m1/Programming/TSP_solver/ali535.tsp.gz /home/alexandre/Documents/ai_m1/Programming/TSP_solver/ali535.tsp.tour -m trivial
 
 
 // Factory function to peek at the file and return the appropriate parser
