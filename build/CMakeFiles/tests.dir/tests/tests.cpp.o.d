@@ -304,4 +304,5 @@ CMakeFiles/tests.dir/tests/tests.cpp.o: \
  /home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-src/googletest/include/gtest/gtest_pred_impl.h \
  /home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-src/googletest/include/gtest/gtest_prod.h \
  /home/alexandre/Documents/ai_m1/Programming/TSP_solver/src/cpp/include/TrivialSolver.hpp \
- /home/alexandre/Documents/ai_m1/Programming/TSP_solver/src/cpp/include/Solver.hpp
+ /home/alexandre/Documents/ai_m1/Programming/TSP_solver/src/cpp/include/Solver.hpp \
+ /home/alexandre/Documents/ai_m1/Programming/TSP_solver/src/cpp/include/LowerTriMatrix.hpp
