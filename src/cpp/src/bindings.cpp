@@ -4,7 +4,11 @@
 #include <memory>
 #include <vector>
 #include "TrivialSolver.hpp"
+#include "HeldKarpSolver.hpp"
 
+// This file is intended to provide Python bindings for the TSP solver. It uses pybind11 to expose the C++ functionality to Python. 
+// We originally planned to run solver from python, call cpp for fast computing, then return result to Python.
+// Upon further inspection of TSP isntructuons, we realized that 
 // bindings.cpp is omitted from the add_executable source list to prevent conflicts: add to CMakeLists.txt to use this.
 
 namespace py = pybind11;

@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/alexandre/Documents/ai_m1/Programming/TSP_solver/src/cpp/include -isystem /home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-src/googletest/include -isystem /home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-src/googletest
 
-CXX_FLAGS = -Wall -Wextra -O3 -std=c++20
+CXX_FLAGS = -Wall -Wextra -g -std=c++20
 

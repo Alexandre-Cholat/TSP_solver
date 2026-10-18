@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -isystem /home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-src/googletest/include -isystem /home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-src/googletest
 
-CXX_FLAGS = -Wall -Wextra -O3 -std=c++20 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -w
+CXX_FLAGS = -Wall -Wextra -g -std=c++20 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -w
 
