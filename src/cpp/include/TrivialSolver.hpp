@@ -7,12 +7,14 @@
 class TrivialSolver : public Solver {
 public:
 
-    std::vector<int> solve(const double* mat, std::size_t nodes) override {
-        // mat is a pointer to the flattened adjacency matrix, not needed here.
+    std::vector<int> solve(const LowerTriMatrix& matrix) override {
+
+        // creating return vector tour
         std::vector<int> tour;
+        size_t nodes = matrix.get_dimension();
         tour.reserve(nodes);
         
-        // returns the tour consisting of the vertices sorted by there indices.
+        // fill tour with list of nodes
         for (int i = 1; i <= static_cast<int>(nodes); ++i) {
             tour.push_back(i);
         }

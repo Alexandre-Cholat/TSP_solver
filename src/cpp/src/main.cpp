@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "parsers.hpp"
+#include "LowerTriMatrix.hpp"
 #include "Solver.hpp"
 #include "TrivialSolver.hpp"
 
@@ -11,32 +12,19 @@
 // ./build/TSPsolver /home/alexandre/Documents/ai_m1/Programming/TSP_solver/ali535.tsp.gz /home/alexandre/Documents/ai_m1/Programming/TSP_solver/test_ali535.tsp.tour -m trivial
 
 
-// Factory function to peek at the file and return the appropriate parser
-std::unique_ptr<BaseParser> get_parser(const std::string& filepath) {
-    std::unique_ptr<BaseParser> peeker = std::make_unique<LowerTriParser>(filepath);
-    
-    for (const auto& line : peeker->read_lines()) {
-        if (line.find("NODE_COORD_SECTION") != std::string::npos) {
-            return std::make_unique<CoordParser>(filepath);
-        }
-        if (line.find("EDGE_WEIGHT_SECTION") != std::string::npos) {
-            return std::make_unique<LowerTriParser>(filepath);
-        }
-    }
-    throw std::runtime_error("Could not determine format for " + filepath);
-}
-
 int main(int argc, char* argv[]) {
-    // Parse command line arguments
+    // Parsing
     if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " <instance_path> <output_path> [-m <algorithm>]\n";
+        std::cout << "Usage: ./TSPsolver <instance_path> <output_path> [-m <algorithm>]\n";
         return 1;
     }
 
+    // map arguments
     std::string instance_path = argv[1];
     std::string output_path = argv[2];
-    std::string method = "trivial"; // default
+    std::string method = "trivial";
 
+    // Loop to check for -m
     for (int i = 3; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "-m" && i + 1 < argc) {
@@ -44,29 +32,60 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Parse the input file
-    auto parser = get_parser(instance_path);
-    auto data = parser->parse();
-    int dimension = data.first;
-    std::vector<double>& weights = data.second;
+    // File Type Detection
+    std::string file_format = "unknown";
+    LowerTriParser dummy_parser(instance_path); 
+    
+    for (const std::string& line : dummy_parser.read_lines()) {
+        if (line.find("NODE_COORD_SECTION") != std::string::npos) {
+            file_format = "coord";
+            break;
+        }
+        if (line.find("EDGE_WEIGHT_SECTION") != std::string::npos) {
+            file_format = "lower-tri";
+            break;
+        }
+    }
+
+    // call the correct parser
+    int dimension = 0;
+    std::vector<double> flat_weights;
+
+    if (file_format == "coord") {
+        CoordParser parser(instance_path);
+        auto data = parser.parse();
+        dimension = data.first;
+        flat_weights = data.second;
+    } else if (file_format == "lower-tri") {
+        LowerTriParser parser(instance_path);
+        auto data = parser.parse();
+        dimension = data.first;
+        flat_weights = data.second;
+    } else {
+        std::cout << "Error: bad file format for " << instance_path << "\n";
+        return 1;
+    }
+
+    // Instantiate the new matrix object using the parsed data
+    LowerTriMatrix matrix(dimension, flat_weights);
+    std::vector<int> tour;
 
     // Run the algorithm
     std::unique_ptr<Solver> solver;
     if (method == "trivial") {
-        solver = std::make_unique<TrivialSolver>();
-    } else {
-        std::cerr << "Error: Unknown or unimplemented method '" << method << "'\n";
+        TrivialSolver solver;
+        tour = solver.solve(matrix);
+    } 
+    // add next algo here
+    else {
+        std::cout << "Error: Algorithm '" << method << "' doesnt exist.\n";
         return 1;
     }
 
-    std::vector<int> tour = solver->solve(weights.data(), dimension);
-
-    // Write output
+    // write the output
     std::ofstream out_f(output_path);
-    if (!out_f.is_open()) {
-        std::cerr << "Error: Could not open output file.\n";
-        return 1;
-    }
+
+    
 
     // Extract filename without extension
     size_t last_slash = instance_path.find_last_of("/\\");
