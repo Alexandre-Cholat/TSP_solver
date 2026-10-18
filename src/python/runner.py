@@ -69,7 +69,6 @@ def main():
     
     args = parser.parse_args()
 
-    # 2. Map the string method to an integer identifier for the C++ switch statement
     algo_map = {
         "trivial": 1,
         "held-karp": 2
@@ -80,16 +79,16 @@ def main():
         print(f"Error: Unknown method '{args.method}'.")
         sys.exit(1)
 
-    # 3. Instantiate the correct parser and extract data
+    # select the correct parser and parse
     tsp_parser = get_parser(args.instance_path)
     dimension, weights = tsp_parser.parse()
 
-    # 4. Pack the metadata and the flattened matrix into a single 1D numpy array
-    # The array must be of type float64 to match py::array_t<double> in C++
+    # build a single 1D numpy array
+    # type float64 to match py::array_t<double> in C++
     header = np.array([dimension, algo_type], dtype=np.float64)
     parsed_array = np.concatenate((header, weights)).astype(np.float64)
 
-    # 5. Execute the C++ solver
+    # call the C++ solver
     try:
         # C++ returns a list of integers representing the node permutation
         tour = tsp_bindings.solve_tsp(parsed_array)
@@ -97,7 +96,7 @@ def main():
         print(f"C++ solver execution failed: {e}")
         sys.exit(1)
 
-    # 6. Write to the output file using the required specification[cite: 2, 3]
+    # write output file
     instance_name = os.path.basename(args.instance_path).split('.')[0]
     
     with open(args.output_path, 'w') as out_f:
@@ -106,11 +105,9 @@ def main():
         out_f.write(f"DIMENSION: {dimension}\n")
         out_f.write("TOUR_SECTION\n")
         
-        # Write each node in the permutation[cite: 2]
         for node in tour:
             out_f.write(f"{node}\n")
             
-        # Write the required delimiters[cite: 2]
         out_f.write("-1\n")
         out_f.write("EOF\n")
 
