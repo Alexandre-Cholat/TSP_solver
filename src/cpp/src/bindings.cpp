@@ -5,6 +5,8 @@
 #include <vector>
 #include "TrivialSolver.hpp"
 
+// bindings.cpp is omitted from the add_executable source list to prevent conflicts: add to CMakeLists.txt to use this.
+
 namespace py = pybind11;
 
 std::vector<int> solve_tsp(py::array_t<double> array) {
