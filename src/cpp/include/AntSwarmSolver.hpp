@@ -2,7 +2,7 @@
 #include "Solver.hpp"
 #include <cstddef>
 #include <vector>
-#include "PheremoneMatrix.hpp"
+#include "Swarm.hpp"
 
 // ant colony optimization algorithm
 // https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms
