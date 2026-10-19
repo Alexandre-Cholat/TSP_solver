@@ -5,22 +5,22 @@ from tsp_parsers import CoordParser, LowerTriParser
 import numpy as np
 import fast_engine
 
-<<<<<<< HEAD
-def main():
+
+# def main():
     # build orchestrator here... can be broken into sub functions
     # first decide which parser to use
 
     # then parse. for testing : 
-    parsed_array = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float64)
+    # parsed_array = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float64)
 
  
     # cpp calculates and returns an array of size dim +1
-    output_array = fast_engine.process_pybind11(parsed_array)
+    # output_array = fast_engine.solve_tsp(parsed_array)
 
 
 
     # print output in proper format:
-    output_array = np.array([ 1, 3, 5, 2, 4])   
+    # output_array = np.array([ 1, 3, 5, 2, 4])   
     # from [ 1, 3, 5, 2, 4] to:
 
     # NAME : example.tour
@@ -35,59 +35,81 @@ def main():
     # EOF
 
 
-    return 1
 
 
-=======
-def resolve_instance_path(filename: str) -> Path:
-    path_obj = Path(filename)
-    if path_obj.exists():
-        return path_obj.resolve()
-    
-    project_root = Path(__file__).resolve().parents[2]
-    root_file = project_root / filename
-    if root_file.exists():
-        return root_file.resolve()
 
-    raise FileNotFoundError(f"Could not find '{filename}'.")
+import sys
+import os
+import argparse
+import numpy as np
 
-def parse_instance(filepath: Path):
-    str_path = str(filepath)
-    try:
-        coord_parser = CoordParser(str_path)
-        dim, weights = coord_parser.parse()
-        if len(weights) > 0:
-            print("[Python Parser] Parsed coordinates successfully.")
-            return dim, weights
-    except Exception as e:
-        print(f"[Python Parser] CoordParser skipped: {e}")
+# Import your C++ Pybind11 module
+# Note: The .so library built by CMake must be accessible in your PYTHONPATH
+import tsp_bindings
 
-    tri_parser = LowerTriParser(str_path)
-    dim, weights = tri_parser.parse()
-    print("[Python Parser] Parsed matrix successfully.")
-    return dim, weights
+# Assuming your parser classes are saved in a file named `parsers.py`
+from tsp_parsers import CoordParser, LowerTriParser 
+
+def get_parser(file_path):
+    """Scans the file to determine the correct parser based on keywords."""
+    with open(file_path, 'r') as f:
+        for line in f:
+            if line.startswith("NODE_COORD_SECTION"):
+                return CoordParser(file_path)
+            elif line.startswith("EDGE_WEIGHT_SECTION"):
+                return LowerTriParser(file_path)
+    raise ValueError(f"Could not determine format for {file_path}")
 
 def main():
-    raw_input = sys.argv[1] if len(sys.argv) > 1 else "ali535.tsp.gz"
-    target_path = resolve_instance_path(raw_input)
+    # 1. Handle command-line arguments
+    parser = argparse.ArgumentParser(description="TSP Solver")
+    parser.add_argument("instance_path", help="Path to the instance file")
+    parser.add_argument("output_path", help="Path to the output file")
+    parser.add_argument("-m", "--method", default="trivial", help="Solving algorithm")
+    
+    args = parser.parse_args()
 
-    print(f"--- Parsing Instance: {target_path.name} ---")
-    dim, weights = parse_instance(target_path)
-
-    # Export parsed data to a simple JSON format for C++ to consume
-    parsed_data = {
-        "dimension": dim,
-        "weights": weights.tolist() if hasattr(weights, "tolist") else list(weights)
+    algo_map = {
+        "trivial": 1,
+        "held-karp": 2
     }
+    
+    algo_type = algo_map.get(args.method.lower())
+    if algo_type is None:
+        print(f"Error: Unknown method '{args.method}'.")
+        sys.exit(1)
 
-    export_path = target_path.with_suffix(".parsed.json")
-    with open(export_path, "w") as f:
-        json.dump(parsed_data, f)
+    # select the correct parser and parse
+    tsp_parser = get_parser(args.instance_path)
+    dimension, weights = tsp_parser.parse()
 
-    print(f"Extracted Dimension: {dim}")
-    print(f"Extracted Total Weights: {len(weights)}")
-    print(f"Exported parsed data to: {export_path}")
->>>>>>> 577388b (C++ Trivial Algorithm)
+    # build a single 1D numpy array
+    # type float64 to match py::array_t<double> in C++
+    header = np.array([dimension, algo_type], dtype=np.float64)
+    parsed_array = np.concatenate((header, weights)).astype(np.float64)
+
+    # call the C++ solver
+    try:
+        # C++ returns a list of integers representing the node permutation
+        tour = tsp_bindings.solve_tsp(parsed_array)
+    except Exception as e:
+        print(f"C++ solver execution failed: {e}")
+        sys.exit(1)
+
+    # write output file
+    instance_name = os.path.basename(args.instance_path).split('.')[0]
+    
+    with open(args.output_path, 'w') as out_f:
+        out_f.write(f"NAME: {instance_name}.tour\n")
+        out_f.write("TYPE: TOUR\n")
+        out_f.write(f"DIMENSION: {dimension}\n")
+        out_f.write("TOUR_SECTION\n")
+        
+        for node in tour:
+            out_f.write(f"{node}\n")
+            
+        out_f.write("-1\n")
+        out_f.write("EOF\n")
 
 if __name__ == "__main__":
     main()
