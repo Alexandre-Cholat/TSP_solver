@@ -44,19 +44,47 @@ int Swarm::next_move(int current_node, const std::vector<int>& options) {
     // create a weight vector based on pheromone levels and distances
     std::vector<double> weights(options.size());
     for (size_t i = 0; i < options.size(); i++) {
-        weights[i] = matrix.get_distance(current_node, options[i]) - pmatrix.get_pheromone(current_node, options[i]);
+
+        // penalize large distances and reward high pheromone levels
+        weights[i] = pmatrix.get_pheromone(current_node, options[i]) / matrix.get_distance(current_node, options[i]);
     }
 
-    // select probalistically based on weight
+    // build a discrete distribution based on the weights
     std::discrete_distribution<int> dist(weights.begin(), weights.end());
 
     //random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    //pick idx:
+    // select probalistically based on weight
     int index = dist(gen);
 
     // return selected node index in integer type
     return options[index];
+}
+
+// Trails are usually updated when all ants have completed their solution, 
+// increasing or decreasing the level of trails corresponding to moves that were "good" or "bad" solutions
+
+void Swarm::updatePheremones() {
+    // for each ant path, update pheromone levels based on the path length
+    for (const auto& path : ant_paths) {
+        
+        // calculate the total length of the path
+        double path_length = 0.0;
+        for (size_t i = 0; i < tour_size - 1; i++) {
+            path_length += matrix.get_distance(path[i], path[i + 1]);
+        }
+
+        // TODO: Implement pheromone evaporation here 
+
+    
+
+        // update pheromone levels for nodes on that path inversely proportional to the path length
+        // pheremones 
+        for (size_t i = 0; i < tour_size - 1; i++) {
+            double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
+            pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
+        }
+    }
 }

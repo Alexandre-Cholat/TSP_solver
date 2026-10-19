@@ -19,9 +19,14 @@ class PheremoneMatrix : public LowerTriMatrix {
                     }
                 }
             }
+        
+        // implement get_distance to replace get_pheromone for clarity
+        double get_pheromone(size_t i, size_t j) const {
+            return get_distance(i, j);
+        }
 
         // for pheremone updates
-        void set_distance(size_t i, size_t j, double value) {
+        void set_pheromone(size_t i, size_t j, double value) {
             if (i == j) return; // no self-loops
             if (i < j) std::swap(i, j); // i > j for lower triangle
             
