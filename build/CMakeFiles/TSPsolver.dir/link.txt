@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wall -Wextra -g -Wl,--dependency-file=CMakeFiles/TSPsolver.dir/link.d CMakeFiles/TSPsolver.dir/src/cpp/src/main.cpp.o -o TSPsolver  /usr/lib/x86_64-linux-gnu/libz.so

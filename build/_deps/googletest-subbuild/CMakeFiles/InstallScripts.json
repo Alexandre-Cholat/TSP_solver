@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/alexandre/Documents/ai_m1/Programming/TSP_solver/build/_deps/googletest-subbuild/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
