@@ -4,6 +4,8 @@
 #include <vector>
 #include "PheremoneMatrix.hpp"
 #include "LowerTriMatrix.hpp"
+#include <random>
+
 
 void Swarm::explore() {
     // clear ant_paths
@@ -21,11 +23,12 @@ void Swarm::explore() {
         for (size_t i = 2; i < tour_size; i++) {
             options[i-2] = i;
         }
+        int current_node = 0;
         // starting node is always 0
         for (size_t position = 1; position < tour_size - 1; position++) {
             
             // calculate next move for the ant, considering current position, pheromone levels and distances from the matrix
-            ant_paths[agent][position+1] = next_move(position, options);
+            ant_paths[agent][position+1] = next_move(current_node, options);
 
             // remove next move from options
             options.erase(std::remove(options.begin(), options.end(), ant_paths[agent][position]), options.end());
@@ -36,18 +39,24 @@ void Swarm::explore() {
     }
 }
 
-int Swarm::next_move(size_t position, const std::vector<int>& options) {
-    // calculate attractivity from options
-    for(int o : options) {
-        // attractivity = 1 / distance from current position to option
+int Swarm::next_move(int current_node, const std::vector<int>& options) {
 
-        
-        // distance = matrix.get_distance(current_position, option)
-
+    // create a weight vector based on pheromone levels and distances
+    std::vector<double> weights(options.size());
+    for (size_t i = 0; i < options.size(); i++) {
+        weights[i] = matrix.get_distance(current_node, options[i]) - pmatrix.get_pheromone(current_node, options[i]);
     }
 
-    // select probalistically based on pheromone levels and attractivity
+    // select probalistically based on weight
+    std::discrete_distribution<int> dist(weights.begin(), weights.end());
+
+    //random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    //pick idx:
+    int index = dist(gen);
 
     // return selected node index in integer type
-    return 0; // Placeholder
+    return options[index];
 }
