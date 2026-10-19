@@ -21,13 +21,13 @@ class AntSwarmSolver : public Solver {
         // for desired number of iterations:
         for (size_t iteration = 0; iteration < 15; ++iteration) {
             // ants explore N paths semi randomly
-            ants.explore(matrix);
+            ants.explore();
             // for N paths, update pheremone matrix according to perfromance
             ants.updatePheremones();
-            // save best path
+            // retrieve the best path
+            tour = ants.get_best()
             // repeat
         }
-        // tour = best path
         return tour;
     }
 
