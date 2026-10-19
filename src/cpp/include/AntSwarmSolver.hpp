@@ -2,7 +2,7 @@
 #include "Solver.hpp"
 #include <cstddef>
 #include <vector>
-
+#include "PheremoneMatrix.hpp"
 
 // ant colony optimization algorithm
 // https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms
@@ -15,14 +15,18 @@ class AntSwarmSolver : public Solver {
         tour.reserve(nodes);
         
         // build an ant swarm of N agents
-        // build pheremone matrix
+        const size_t N = 10; // number of ants
+        Swarm ants(N, matrix);
 
         // for desired number of iterations:
+        for (size_t iteration = 0; iteration < 15; ++iteration) {
             // ants explore N paths semi randomly
+            ants.explore(matrix);
             // for N paths, update pheremone matrix according to perfromance
+            ants.updatePheremones();
             // save best path
             // repeat
-        
+        }
         // tour = best path
         return tour;
     }
