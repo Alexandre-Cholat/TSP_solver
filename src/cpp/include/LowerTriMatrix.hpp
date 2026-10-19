@@ -21,4 +21,7 @@ class LowerTriMatrix {
             size_t index = (i * (i - 1)) / 2 + j;
             return weights[index];
         }
+
+
+
 };

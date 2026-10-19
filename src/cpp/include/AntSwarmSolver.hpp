@@ -15,6 +15,7 @@ class AntSwarmSolver : public Solver {
         tour.reserve(nodes);
         
         // build an ant swarm of N agents
+        // build pheremone matrix
 
         // for desired number of iterations:
             // ants explore N paths semi randomly
