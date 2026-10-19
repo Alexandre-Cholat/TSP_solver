@@ -5,7 +5,7 @@
 
 // we inherit from parent class Solver
 class TrivialSolver : public Solver {
-public:
+    public:
 
     std::vector<int> solve(const LowerTriMatrix& matrix) override {
 
