@@ -1,7 +1,14 @@
 #include "parsers.hpp"
 
-#include <cstddef>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <vector>
+#include <cmath>
+#include <algorithm>
+#include <stdexcept>
+#include <zlib.h>
 
 
 std::vector<std::string> BaseParser:: read_lines(){
