@@ -82,6 +82,10 @@ int main(int argc, char* argv[]) {
     if (method == "trivial") {
         TrivialSolver solver;
         tour = solver.solve(matrix);
+    }
+    if (method == "ants") {
+        AntSwarmSolver solver;
+        tour = solver.solve(matrix);
     } 
     // add next algo here
     else {
