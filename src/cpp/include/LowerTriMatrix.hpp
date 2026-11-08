@@ -22,6 +22,8 @@ class LowerTriMatrix {
             return weights[index];
         }
 
+        // TODO : set distance, for clean inheritance
+
 
 
 };

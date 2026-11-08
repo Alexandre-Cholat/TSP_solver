@@ -2,7 +2,7 @@
 #include <vector>
 #include <cstddef>
 #include <utility>
-#include "LowerTriMatrix"
+#include "LowerTriMatrix.hpp"
 
 class PheremoneMatrix : public LowerTriMatrix {
     public:
@@ -15,7 +15,7 @@ class PheremoneMatrix : public LowerTriMatrix {
                 // Initialize pheromone values to a default value 1.0 everywhere:
                 for (size_t i = 0; i < get_dimension(); ++i) {
                     for (size_t j = 0; j < i; ++j) {
-                        set_distance(i, j, 1.0);
+                        set_pheromone(i, j, 1.0);
                     }
                 }
             }
