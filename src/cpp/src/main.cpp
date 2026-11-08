@@ -7,7 +7,7 @@
 #include "LowerTriMatrix.hpp"
 #include "Solver.hpp"
 #include "TrivialSolver.hpp"
-#include "PheremoneMatrix.hpp"
+#include "AntSwarmSolver.hpp"
 
 // first: bash build-TSPsolver.sh
 // second: ./build/TSPsolver <instance_path> <output_path> [-m <algorithm>]
@@ -80,12 +80,11 @@ int main(int argc, char* argv[]) {
     // Run the algorithm
     std::unique_ptr<Solver> solver;
     if (method == "trivial") {
-        TrivialSolver t_solver;
-        tour = t_solver.solve(matrix);
-    }
-    if (method == "ants") {
-        AntSwarmSolver a_solver;
-        tour = a_solver.solve(matrix);
+        TrivialSolver solver;
+        tour = solver.solve(matrix);
+    }else if (method == "ants") {
+        AntSwarmSolver solver;
+        tour = solver.solve(matrix);
     } 
     // add next algo here
     else {

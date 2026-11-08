@@ -33,10 +33,13 @@ find_package(ZLIB REQUIRED)
 
 # --- Find Headers ---
 file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
+file(GLOB_RECURSE LIB_SOURCES "${SOURCE_DIR}/*.cpp")
+# Remove main.cpp and bindings.cpp
+list(REMOVE_ITEM LIB_SOURCES "${SOURCE_DIR}/main.cpp" "${SOURCE_DIR}/bindings.cpp")
 
 # --- Main Executable ---
 # We specifically target main.cpp to avoid compiling bindings.cpp into the CLI executable
-add_executable(TSPsolver ${SOURCE_DIR}/main.cpp ${HEADERS})
+add_executable(TSPsolver ${SOURCE_DIR}/main.cpp ${LIB_SOURCES} ${HEADERS})
 target_include_directories(TSPsolver PRIVATE ${INCLUDE_DIR})
 # Link ZLIB to the main executable
 target_link_libraries(TSPsolver PRIVATE ZLIB::ZLIB)
@@ -67,7 +70,7 @@ if(TEST_SOURCES)
     target_compile_options(gtest_main PRIVATE -w)
   endif()
 
-  add_executable(tests ${TEST_SOURCES} ${HEADERS})
+  add_executable(tests ${TEST_SOURCES} ${LIB_SOURCES} ${HEADERS})
   target_include_directories(tests PRIVATE ${INCLUDE_DIR})
   # Link both GTest and ZLIB to the tests executable so parser tests can run
   target_link_libraries(tests PRIVATE gtest_main ZLIB::ZLIB)

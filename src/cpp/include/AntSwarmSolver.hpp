@@ -25,11 +25,9 @@ class AntSwarmSolver : public Solver {
             ants.explore();
             // for N paths, update pheremone matrix according to perfromance
             ants.updatePheremones();
-            // retrieve the best path
-            tour = ants.get_best();
             // repeat
         }
-        return tour;
+        return ants.get_best();
     }
 
 
