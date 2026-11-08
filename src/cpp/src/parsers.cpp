@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <zlib.h>
 
-
+// TODO: parse more weigtht types: 3D_EUC, Pseudo-Euclidean distance (ATT), GEO.
 std::vector<std::string> BaseParser:: read_lines(){
     std::vector<std::string> lines;
         
