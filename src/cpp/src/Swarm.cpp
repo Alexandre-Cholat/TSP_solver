@@ -1,10 +1,29 @@
-#pragma once
 #include "Swarm.hpp"
 #include <cstddef>
 #include <vector>
+#include <algorithm>
 #include "PheremoneMatrix.hpp"
 #include "LowerTriMatrix.hpp"
 #include <random>
+
+Swarm:: Swarm(size_t n, const LowerTriMatrix& ltmatrix){
+    // set number of ant agents in the swarm
+    swarm_size = n;
+    ant_paths.resize(swarm_size);
+    // set the length of the tour
+    tour_size = ltmatrix.get_dimension();
+    // copy the distance matrix to the swarm
+    matrix = ltmatrix;
+
+    // set length of each path to number of nodes +1 (+1 for return to starting node 0) in the distance matrix
+    for (std::vector<int>& path : ant_paths) {
+        path.resize(tour_size + 1);
+    }
+    best_tour.resize(tour_size + 1);
+
+    // create pheremone matrix to match based on distance matrix
+    pmatrix = PheremoneMatrix(ltmatrix);
+}
 
 
 void Swarm::explore() {
@@ -19,22 +38,28 @@ void Swarm::explore() {
         
         // options vector, the list of nodes (2 - tour_size) that have not been visited yet
         // this choice assumes we will never revisit a city
-        std::vector<int> options(tour_size);
-        for (size_t i = 2; i < tour_size; i++) {
-            options[i-2] = i;
+        std::vector<int> options(tour_size-1);
+        for (size_t i = 1; i < tour_size; i++) {
+            options[i-1] = i;
         }
-        int current_node = 0;
+
         // starting node is always 0
-        for (size_t position = 1; position < tour_size - 1; position++) {
+        int current_node = 0;
+        ant_paths[agent][0] = current_node;
+
+        for (size_t position = 1; position < tour_size; position++) {
             
             // calculate next move for the ant, considering current position, pheromone levels and distances from the matrix
-            ant_paths[agent][position+1] = next_move(current_node, options);
+            int chosen_node = next_move(current_node, options);
+
+            ant_paths[agent][position] = chosen_node;
 
             // remove next move from options
-            options.erase(std::remove(options.begin(), options.end(), ant_paths[agent][position]), options.end());
+            options.erase(std::remove(options.begin(), options.end(), chosen_node), options.end());
+            current_node = chosen_node;
         }
         // last move is allways to return to the starting node
-        ant_paths[agent][tour_size-1] = ant_paths[agent][0];
+        ant_paths[agent][tour_size] = ant_paths[agent][0];
         
     }
 }

@@ -6,6 +6,8 @@
 
 class PheremoneMatrix : public LowerTriMatrix {
     public:
+        PheremoneMatrix() = default;
+
         PheremoneMatrix(size_t dimension, std::vector<double> flat_weights)
             : LowerTriMatrix(dimension, std::move(flat_weights)) {}
 

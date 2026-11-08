@@ -9,8 +9,12 @@ class LowerTriMatrix {
         std::vector<double> weights;
 
     public:
+
+        LowerTriMatrix() = default;
+        
         LowerTriMatrix(size_t dimension, std::vector<double> flat_weights)
             : dim(dimension), weights(std::move(flat_weights)) {}
+
 
         size_t get_dimension() const { return dim; }
 

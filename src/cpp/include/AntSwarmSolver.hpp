@@ -15,17 +15,18 @@ class AntSwarmSolver : public Solver {
         tour.reserve(nodes);
         
         // build an ant swarm of N agents
-        const size_t N = 10; // number of ants
+        const size_t N = 10;
         Swarm ants(N, matrix);
 
-        // for desired number of iterations:
-        for (size_t iteration = 0; iteration < 15; ++iteration) {
+        // for desired number of iterations maxIt:
+        size_t maxIt = 15;
+        for(size_t iteration = 0; iteration <= maxIt; ++iteration){
             // ants explore N paths semi randomly
             ants.explore();
             // for N paths, update pheremone matrix according to perfromance
             ants.updatePheremones();
             // retrieve the best path
-            tour = ants.get_best()
+            tour = ants.get_best();
             // repeat
         }
         return tour;
