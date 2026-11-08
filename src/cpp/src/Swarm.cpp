@@ -70,16 +70,24 @@ int Swarm::next_move(int current_node, const std::vector<int>& options) {
     std::vector<double> weights(options.size());
     for (size_t i = 0; i < options.size(); i++) {
 
+        double d = matrix.get_distance(current_node, options[i]);
+        double p = pmatrix.get_pheromone(current_node, options[i]);
+
+        // ( troubleshooting safeguard against zero-weights div )
+        if (d <= 0.0) d = 1e-6; 
+        if (p <= 0.0) p = 1e-6;
+        
         // penalize large distances and reward high pheromone levels
-        weights[i] = pmatrix.get_pheromone(current_node, options[i]) / matrix.get_distance(current_node, options[i]);
+        weights[i] = p / d;
     }
 
     // build a discrete distribution based on the weights
     std::discrete_distribution<int> dist(weights.begin(), weights.end());
 
     //random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    // generate rand seq with static instead of restart
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
 
     // select probalistically based on weight
     int index = dist(gen);

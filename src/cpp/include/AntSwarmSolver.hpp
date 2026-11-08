@@ -26,6 +26,7 @@ class AntSwarmSolver : public Solver {
             // for N paths, update pheremone matrix according to perfromance
             ants.updatePheremones();
             // repeat
+            std::cout << "Iteration "<< iteration << " of swarm exploration.\n";
         }
         return ants.get_best();
     }

@@ -80,9 +80,11 @@ int main(int argc, char* argv[]) {
     // Run the algorithm
     std::unique_ptr<Solver> solver;
     if (method == "trivial") {
+        std::cout << "Running TrivialSolver...\n";
         TrivialSolver solver;
         tour = solver.solve(matrix);
     }else if (method == "ants") {
+        std::cout << "Running AntSwarmSolver...\n";
         AntSwarmSolver solver;
         tour = solver.solve(matrix);
     } 
