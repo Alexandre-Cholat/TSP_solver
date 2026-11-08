@@ -22,7 +22,16 @@ class LowerTriMatrix {
             return weights[index];
         }
 
-        // TODO : set distance, for clean inheritance
+        // set distance, for clean inheritance
+        void set_distance(size_t i, size_t j, double value) {
+            if (i == j) return; // distance from i to j allways 0
+            if (i < j) std::swap(i, j); // i > j for lower triangle
+            
+            size_t index = (i * (i - 1)) / 2 + j;
+            weights[index] = value;
+        }
+
+        
 
 
 

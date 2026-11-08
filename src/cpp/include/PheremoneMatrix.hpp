@@ -27,11 +27,7 @@ class PheremoneMatrix : public LowerTriMatrix {
 
         // for pheremone updates
         void set_pheromone(size_t i, size_t j, double value) {
-            if (i == j) return; // no self-loops
-            if (i < j) std::swap(i, j); // i > j for lower triangle
-            
-            size_t index = (i * (i - 1)) / 2 + j;
-            weights[index] = value;
+            set_distance( i, j, value)
         }
 
         
