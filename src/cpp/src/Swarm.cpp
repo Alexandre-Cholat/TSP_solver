@@ -17,9 +17,9 @@ Swarm:: Swarm(size_t n, const LowerTriMatrix& ltmatrix){
 
     // set length of each path to number of nodes +1 (+1 for return to starting node 0) in the distance matrix
     for (std::vector<int>& path : ant_paths) {
-        path.resize(tour_size + 1);
+        path.resize(tour_size);
     }
-    best_tour.resize(tour_size + 1);
+    best_tour.resize(tour_size);
 
     // create pheremone matrix to match based on distance matrix
     pmatrix = PheremoneMatrix(ltmatrix);
@@ -38,13 +38,13 @@ void Swarm::explore() {
         
         // options vector, the list of nodes that have not been visited yet
         // this choice assumes we will never revisit a city
-        std::vector<int> options(tour_size-1);
-        for (size_t i = 1; i < tour_size; i++) {
-            options[i-1] = i;
+        std::vector<int> options(tour_size - 1);
+        for (size_t i = 2; i <= tour_size; i++) {
+            options[i-2] = i;
         }
 
-        // starting node is always 0
-        int current_node = 0;
+        // starting node is always 1
+        int current_node = 1;
         ant_paths[agent][0] = current_node;
 
         for (size_t position = 1; position < tour_size; position++) {
@@ -58,8 +58,8 @@ void Swarm::explore() {
             options.erase(std::remove(options.begin(), options.end(), chosen_node), options.end());
             current_node = chosen_node;
         }
-        // last move is allways to return to the starting node
-        ant_paths[agent][tour_size] = ant_paths[agent][0];
+        // last move is allways to return to the starting node, but the output file shouldn't include this
+        // ant_paths[agent][tour_size] = ant_paths[agent][0];
         
     }
 }
@@ -70,8 +70,8 @@ int Swarm::next_move(int current_node, const std::vector<int>& options) {
     std::vector<double> weights(options.size());
     for (size_t i = 0; i < options.size(); i++) {
 
-        double d = matrix.get_distance(current_node, options[i]);
-        double p = pmatrix.get_pheromone(current_node, options[i]);
+        double d = matrix.get_distance(current_node - 1, options[i]) - 1;
+        double p = pmatrix.get_pheromone(current_node - 1, options[i] - 1);
 
         // ( troubleshooting safeguard against zero-weights div )
         if (d <= 0.0) d = 1e-6; 
@@ -115,9 +115,11 @@ void Swarm::updatePheremones() {
         
         // calculate the total length of the path
         double path_length = 0.0;
-        for (size_t i = 0; i < tour_size; i++) {
-            path_length += matrix.get_distance(path[i], path[i + 1]);
+        for (size_t i = 0; i < tour_size - 1; i++) {
+            path_length += matrix.get_distance(path[i] - 1, path[i + 1] - 1);
         }
+        // add cost of returning to start to path_length
+        path_length += matrix.get_distance(path[tour_size - 1] - 1, path[0] - 1);
 
         // update best_tour if current path is shorter
         if (path_length < best_length) {
@@ -128,9 +130,9 @@ void Swarm::updatePheremones() {
 
         // update pheromone levels for nodes on that path inversely proportional to the path length
         // pheremones 
-        for (size_t i = 0; i < tour_size; i++) {
-            double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
-            pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
+        for (size_t i = 0; i < tour_size -1; i++) {
+            double current_pheromone = pmatrix.get_pheromone(path[i] - 1, path[i + 1] - 1);
+            pmatrix.set_pheromone(path[i] - 1, path[i + 1] - 1, current_pheromone + (1.0 / path_length));
         }
     }
 }
