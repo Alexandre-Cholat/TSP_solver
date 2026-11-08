@@ -134,6 +134,8 @@ void Swarm::updatePheremones() {
             double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
             pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
         }
+
+        // TODO : pheromone update on the return edge
         
     }
 }

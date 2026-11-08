@@ -15,7 +15,7 @@ class AntSwarmSolver : public Solver {
         tour.reserve(nodes);
         
         // build an ant swarm of N agents
-        const size_t N = 10;
+        const size_t N = 1000;
         Swarm ants(N, matrix);
 
         // for desired number of iterations maxIt:
@@ -26,8 +26,9 @@ class AntSwarmSolver : public Solver {
             // for N paths, update pheremone matrix according to perfromance
             ants.updatePheremones();
             // repeat
-            std::cout << "Iteration "<< iteration << " of swarm exploration.\n";
+            std::cout << "Iteration "<< iteration << " of swarm, shortest tour = " << ants.get_best_length() << " .\n";
         }
+        std::cout << "Length of shortest tour : "<<  ants.get_best_length() << " .\n";
         return ants.get_best();
     }
 
