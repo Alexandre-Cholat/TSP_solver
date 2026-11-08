@@ -13,6 +13,8 @@ class Swarm {
         LowerTriMatrix matrix;
         PheremoneMatrix pmatrix;
         std::vector<int> best_tour;
+        double best_length = 1e18; // track shortest path length
+        
     public:
         Swarm(size_t n, const LowerTriMatrix& ltmatrix);
 

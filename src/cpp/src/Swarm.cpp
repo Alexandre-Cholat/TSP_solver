@@ -36,7 +36,7 @@ void Swarm::explore() {
     for (size_t agent = 0; agent < swarm_size; agent++) {
         // calculate her move iteratively for each position in the tour.
         
-        // options vector, the list of nodes (2 - tour_size) that have not been visited yet
+        // options vector, the list of nodes that have not been visited yet
         // this choice assumes we will never revisit a city
         std::vector<int> options(tour_size-1);
         for (size_t i = 1; i < tour_size; i++) {
@@ -66,7 +66,7 @@ void Swarm::explore() {
 
 int Swarm::next_move(int current_node, const std::vector<int>& options) {
 
-    // create a weight vector based on pheromone levels and distances
+    // create a weight vector based on pheromone trail levels and desirability ( distances )
     std::vector<double> weights(options.size());
     for (size_t i = 0; i < options.size(); i++) {
 
@@ -92,24 +92,38 @@ int Swarm::next_move(int current_node, const std::vector<int>& options) {
 // increasing or decreasing the level of trails corresponding to moves that were "good" or "bad" solutions
 
 void Swarm::updatePheremones() {
+    
+    // first we apply 'evaporation' according to literature
+    double evaporation_rate = 0.1; // 0.1 = 10% evaporation
+    for (size_t i = 0; i < tour_size; i++) {
+        for (size_t j = 0; j < i; j++) {
+            double current = pmatrix.get_pheromone(i, j);
+            pmatrix.set_pheromone(i, j, current * (1.0 - evaporation_rate));
+        }
+    }
+
     // for each ant path, update pheromone levels based on the path length
     for (const auto& path : ant_paths) {
         
         // calculate the total length of the path
         double path_length = 0.0;
-        for (size_t i = 0; i < tour_size - 1; i++) {
+        for (size_t i = 0; i < tour_size; i++) {
             path_length += matrix.get_distance(path[i], path[i + 1]);
         }
 
-        // TODO: Implement pheromone evaporation here 
-
+        // update best_tour if current path is shorter
+        if (path_length < best_length) {
+            best_length = path_length;
+            best_tour = path;
+        }
     
 
         // update pheromone levels for nodes on that path inversely proportional to the path length
         // pheremones 
-        for (size_t i = 0; i < tour_size - 1; i++) {
+        for (size_t i = 0; i < tour_size; i++) {
             double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
             pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
         }
     }
 }
+
