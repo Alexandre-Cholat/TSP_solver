@@ -80,12 +80,12 @@ int main(int argc, char* argv[]) {
     // Run the algorithm
     std::unique_ptr<Solver> solver;
     if (method == "trivial") {
-        TrivialSolver solver;
-        tour = solver.solve(matrix);
+        TrivialSolver t_solver;
+        tour = t_solver.solve(matrix);
     }
     if (method == "ants") {
-        AntSwarmSolver solver;
-        tour = solver.solve(matrix);
+        AntSwarmSolver a_solver;
+        tour = a_solver.solve(matrix);
     } 
     // add next algo here
     else {
