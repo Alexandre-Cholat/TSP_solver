@@ -70,8 +70,8 @@ int Swarm::next_move(int current_node, const std::vector<int>& options) {
     std::vector<double> weights(options.size());
     for (size_t i = 0; i < options.size(); i++) {
 
-        double d = matrix.get_distance(current_node - 1, options[i]) - 1;
-        double p = pmatrix.get_pheromone(current_node - 1, options[i] - 1);
+        double d = matrix.get_distance(current_node, options[i]);
+        double p = pmatrix.get_pheromone(current_node, options[i]);
 
         // ( troubleshooting safeguard against zero-weights div )
         if (d <= 0.0) d = 1e-6; 
@@ -103,12 +103,12 @@ void Swarm::updatePheremones() {
     
     // first we apply 'evaporation' according to literature
     double evaporation_rate = 0.1; // 0.1 = 10% evaporation
-    for (size_t i = 0; i < tour_size; i++) {
-        for (size_t j = 0; j < i; j++) {
-            double current = pmatrix.get_pheromone(i, j);
-            pmatrix.set_pheromone(i, j, current * (1.0 - evaporation_rate));
+    for (size_t i = 1; i <= tour_size; i++) {
+            for (size_t j = 1; j < i; j++) {
+                double current = pmatrix.get_pheromone(i, j);
+                pmatrix.set_pheromone(i, j, current * (1.0 - evaporation_rate));
+            }
         }
-    }
 
     // for each ant path, update pheromone levels based on the path length
     for (const auto& path : ant_paths) {
@@ -116,10 +116,10 @@ void Swarm::updatePheremones() {
         // calculate the total length of the path
         double path_length = 0.0;
         for (size_t i = 0; i < tour_size - 1; i++) {
-            path_length += matrix.get_distance(path[i] - 1, path[i + 1] - 1);
+            path_length += matrix.get_distance(path[i], path[i + 1]);
         }
         // add cost of returning to start to path_length
-        path_length += matrix.get_distance(path[tour_size - 1] - 1, path[0] - 1);
+        path_length += matrix.get_distance(path[tour_size - 1], path[0]);
 
         // update best_tour if current path is shorter
         if (path_length < best_length) {
@@ -131,9 +131,10 @@ void Swarm::updatePheremones() {
         // update pheromone levels for nodes on that path inversely proportional to the path length
         // pheremones 
         for (size_t i = 0; i < tour_size -1; i++) {
-            double current_pheromone = pmatrix.get_pheromone(path[i] - 1, path[i + 1] - 1);
-            pmatrix.set_pheromone(path[i] - 1, path[i + 1] - 1, current_pheromone + (1.0 / path_length));
+            double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
+            pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
         }
+        
     }
 }
 
