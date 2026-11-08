@@ -29,8 +29,7 @@ class PheremoneMatrix : public LowerTriMatrix {
 
         // for pheremone updates
         void set_pheromone(size_t i, size_t j, double value) {
-            set_distance( i, j, value)
+            set_distance( i, j, value);
         }
 
-        
 };
