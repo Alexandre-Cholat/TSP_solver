@@ -13,6 +13,7 @@
 // second: ./build/TSPsolver <instance_path> <output_path> [-m <algorithm>]
 // for example : 
 // ./build/TSPsolver pa561.tsp.gz pa561.tsp.tour -m trivial
+// ./build/TSPsolver ali535.tsp.gz ali535.tsp.tour -m ants
 
 
 
