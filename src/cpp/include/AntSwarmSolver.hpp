@@ -18,6 +18,10 @@ class AntSwarmSolver : public Solver {
         const size_t N = 1000;
         Swarm ants(N, matrix);
 
+        //set hyperparameters
+        ants.set_alpha(2);
+        ants.set_beta(3);
+
         // for desired number of iterations maxIt:
         size_t maxIt = 15;
         for(size_t iteration = 0; iteration <= maxIt; ++iteration){

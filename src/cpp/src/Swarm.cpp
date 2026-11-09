@@ -32,34 +32,32 @@ void Swarm::explore() {
         std::fill(path.begin(), path.end(), -1); // reset to -1 or any invalid value
     }
 
-    // For each ant in the swarm
+    // For each ant in the swarm, we calculate her move iteratively for each position in the tour.
     for (size_t agent = 0; agent < swarm_size; agent++) {
-        // calculate her move iteratively for each position in the tour.
         
         // options vector, the list of nodes that have not been visited yet
-        // this choice assumes we will never revisit a city
         std::vector<int> options(tour_size - 1);
+        // we fill options with all nodes except start
         for (size_t i = 2; i <= tour_size; i++) {
             options[i-2] = i;
         }
 
-        // starting node is always 1
+        // reset current so that we start at 1
         int current_node = 1;
         ant_paths[agent][0] = current_node;
 
         for (size_t position = 1; position < tour_size; position++) {
             
-            // calculate next move for the ant, considering current position, pheromone levels and distances from the matrix
+            // calculate next move for the ant
             int chosen_node = next_move(current_node, options);
-
+            
+            // add chosen node to path
             ant_paths[agent][position] = chosen_node;
 
             // remove next move from options
             options.erase(std::remove(options.begin(), options.end(), chosen_node), options.end());
             current_node = chosen_node;
         }
-        // last move is allways to return to the starting node, but the output file shouldn't include this
-        // ant_paths[agent][tour_size] = ant_paths[agent][0];
         
     }
 }
@@ -73,12 +71,12 @@ int Swarm::next_move(int current_node, const std::vector<int>& options) {
         double d = matrix.get_distance(current_node, options[i]);
         double p = pmatrix.get_pheromone(current_node, options[i]);
 
-        // ( troubleshooting safeguard against zero-weights div )
+        // troubleshooting safeguard
         if (d <= 0.0) d = 1e-6; 
         if (p <= 0.0) p = 1e-6;
-        
+
         // penalize large distances and reward high pheromone levels
-        weights[i] = p / d;
+        weights[i] = std::pow(p, alpha) * std::pow(1.0 / d, beta);
     }
 
     // build a discrete distribution based on the weights
@@ -126,10 +124,8 @@ void Swarm::updatePheremones() {
             best_length = path_length;
             best_tour = path;
         }
-    
 
         // update pheromone levels for nodes on that path inversely proportional to the path length
-        // pheremones 
         for (size_t i = 0; i < tour_size -1; i++) {
             double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
             pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
