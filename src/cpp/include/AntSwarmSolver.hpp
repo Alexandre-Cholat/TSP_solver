@@ -19,6 +19,8 @@ class AntSwarmSolver : public Solver {
         Swarm ants(N, matrix);
 
         //set hyperparameters
+        // If α= 0, the closest cities are selected (greedy)
+        // If β= 0, only pheromone ampliﬁcation is at work
         ants.set_alpha(2);
         ants.set_beta(3);
 
