@@ -21,11 +21,11 @@ class AntSwarmSolver : public Solver {
         //set hyperparameters
         // If α= 0, the closest cities are selected (greedy)
         // If β= 0, only pheromone ampliﬁcation is at work
-        ants.set_alpha(2);
+        ants.set_alpha(1);
         ants.set_beta(3);
 
         // for desired number of iterations maxIt:
-        size_t maxIt = 15;
+        size_t maxIt = 100;
         for(size_t iteration = 0; iteration <= maxIt; ++iteration){
             // ants explore N paths semi randomly
             ants.explore();
