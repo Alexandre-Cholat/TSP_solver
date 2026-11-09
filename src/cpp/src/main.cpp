@@ -8,6 +8,7 @@
 #include "Solver.hpp"
 #include "TrivialSolver.hpp"
 #include "AntSwarmSolver.hpp"
+#include "HeldKarpSolver.hpp"
 
 // first: bash build-TSPsolver.sh
 // second: ./build/TSPsolver <instance_path> <output_path> [-m <algorithm>]
@@ -88,9 +89,12 @@ int main(int argc, char* argv[]) {
         std::cout << "Running AntSwarmSolver...\n";
         AntSwarmSolver solver;
         tour = solver.solve(matrix);
-    } 
+    }else if (method == "held-karp" || method == "heldkarp" || method == "hk") {
+        std::cout << "Running HeldKarpSolver...\n";
+        HeldKarpSolver solver;
+        tour = solver.solve(matrix);
     // add next algo here
-    else {
+    }else {
         std::cout << "Error: Algorithm '" << method << "' doesnt exist.\n";
         return 1;
     }
