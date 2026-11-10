@@ -5,6 +5,9 @@
 #include "LowerTriMatrix.hpp"
 
 class Swarm {
+
+    // Reference: Stützle, Thomas & Dorigo, Marco. (1999). ACO Algorithms for the Traveling Salesman Problem. 
+
     private:
         std::vector<std::vector<int>> ant_paths;
         size_t tour_size;
@@ -35,8 +38,4 @@ class Swarm {
         void set_alpha(double al) {alpha = al;};
         void set_beta(double bet) {beta = bet;};
         
-        
-
-
-    
 };
