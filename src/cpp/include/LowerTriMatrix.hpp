@@ -11,40 +11,13 @@ class LowerTriMatrix {
     public:
 
         LowerTriMatrix() = default;
-
-        LowerTriMatrix(size_t dimension, std::vector<double> flat_weights)
-            : dim(dimension), weights(std::move(flat_weights)) {}
+        LowerTriMatrix(size_t dimension, std::vector<double> flat_weights): dim(dimension), weights(std::move(flat_weights)) {}
 
 
         size_t get_dimension() const { return dim; }
 
-        double get_distance(size_t i, size_t j) const {
-            if (i == j) return 0.0;
-            if (i < j) std::swap(i, j); // i > j for lower triangle
+        double get_distance(size_t i, size_t j) const;
 
-            // Convert node idx to 0-based idx for vector reading
-            i--;
-            j--;
-            
-            size_t index = (i * (i - 1)) / 2 + j;
-            return weights[index];
-        }
-
-        // set distance, for clean inheritance
-        void set_distance(size_t i, size_t j, double value) {
-            if (i == j) return; // distance from i to j allways 0
-            if (i < j) std::swap(i, j); // i > j for lower triangle
-            
-            // Convert node idx to 0-based idx for vector reading
-            i--;
-            j--;
-
-            size_t index = (i * (i - 1)) / 2 + j;
-            weights[index] = value;
-        }
-
-        
-
-
+        void set_distance(size_t i, size_t j, double value);
 
 };
