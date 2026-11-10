@@ -73,7 +73,8 @@ PYBIND11_MODULE(tsp_bindings, m) {
 
     py::class_<AntSwarmSolver>(m, "AntSwarmSolver")
         .def(py::init<>())
-        .def("solve", &AntSwarmSolver::solve);
+        .def("solve", py::overload_cast<const LowerTriMatrix&>(&AntSwarmSolver::solve))
+        .def("solve", py::overload_cast<const LowerTriMatrix&, double, double, size_t, size_t>(&AntSwarmSolver::solve));
 
     py::class_<HeldKarpSolver>(m, "HeldKarpSolver")
         .def(py::init<>())
