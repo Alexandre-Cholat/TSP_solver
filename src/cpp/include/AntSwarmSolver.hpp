@@ -2,6 +2,7 @@
 #include "Solver.hpp"
 #include <cstddef>
 #include <vector>
+#include <iostream>
 #include "Swarm.hpp"
 
 // ant colony optimization algorithm

@@ -8,6 +8,12 @@
 #include "AntSwarmSolver.hpp"
 #include "HeldKarpSolver.hpp"
 
+// to use pybind11, must have venv, and select -DBUILD_PYTHON=ON option manualy instead of using bash script
+// .venv/bin/activate
+// cd build
+// cmake -DBUILD_PYTHON=ON ..
+// cmake --build .
+
 // This file is intended to provide Python bindings for the TSP solver. It uses pybind11 to expose the C++ functionality to Python. 
 // We originally planned to run solver from python, call cpp for fast computing, then return result to Python.
 // Upon further inspection of TSP isntructuons, we realized that 
