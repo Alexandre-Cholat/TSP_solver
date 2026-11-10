@@ -9,13 +9,20 @@ import random
 # cmake --build .
 # python src/python/eval.py
 
-# 1. Locate the 'build' directory relative to this file (src/python/eval.py -> ../../build)
+# TODO:     • Compare the quality of the solutions obtained by each algorithm (i.e., the length of the tour)
+        # • Analyze the scalability of each algorithm as the size of the instances increases.
+        # • Analyze the behavior of the algorithms on specific instances using visualizations tools.
+
+# eval choice: use parser or directly pass lower triangular matrix to the solvers?
+
+# Locate the 'build' directory relative to this file (src/python/eval.py -> ../../build)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 BUILD_DIR = PROJECT_ROOT / "build"
 sys.path.insert(0, str(BUILD_DIR))
 
 import tsp_bindings
 
+# use instance_generator.py to generate instances?
 def generate_random_matrix(n_nodes: int, seed: int = 42) -> tsp_bindings.LowerTriMatrix:
     """Generates a C++ LowerTriMatrix with random weights for N nodes."""
     random.seed(seed)
