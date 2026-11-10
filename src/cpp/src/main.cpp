@@ -13,7 +13,9 @@
 // first: bash build-TSPsolver.sh
 // second: ./build/TSPsolver <instance_path> <output_path> [-m <algorithm>]
 // for example : 
-// ./build/TSPsolver pa561.tsp.gz pa561.tsp.tour -m trivial
+// ./build/TSPsolver pa561.tsp.gz pa561.tsp.tour -m ants
+// ./build/TSPsolver ali535.tsp.gz ali535.tsp.tour -m ants
+// ./build/TSPsolver berlin52.tsp.gz berlin52.tsp.tour -m ants
 // ./build/TSPsolver ali535.tsp.gz ali535.tsp.tour -m ants
 
 

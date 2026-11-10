@@ -25,7 +25,7 @@ Swarm:: Swarm(size_t n, const LowerTriMatrix& ltmatrix){
     pmatrix = PheremoneMatrix(ltmatrix);
 }
 
-
+// this code was corrected to resolve out-of-bounds exceptions by Google Gemini Argon on Nov 9th 2026
 void Swarm::explore() {
     // clear ant_paths
     for (std::vector<int>& path : ant_paths) {
@@ -131,7 +131,7 @@ void Swarm::updatePheremones() {
             pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
         }
 
-        // TODO : pheromone update on the return edge
+        // TODO : pheromone update on the return edge?
         
     }
 }
