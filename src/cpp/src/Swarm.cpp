@@ -1,0 +1,138 @@
+#include "Swarm.hpp"
+#include <cstddef>
+#include <vector>
+#include <algorithm>
+#include "PheremoneMatrix.hpp"
+#include "LowerTriMatrix.hpp"
+#include <random>
+
+Swarm:: Swarm(size_t n, const LowerTriMatrix& ltmatrix){
+    // set number of ant agents in the swarm
+    swarm_size = n;
+    ant_paths.resize(swarm_size);
+    // set the length of the tour
+    tour_size = ltmatrix.get_dimension();
+    // copy the distance matrix to the swarm
+    matrix = ltmatrix;
+
+    // set length of each path to number of nodes +1 (+1 for return to starting node 0) in the distance matrix
+    for (std::vector<int>& path : ant_paths) {
+        path.resize(tour_size);
+    }
+    best_tour.resize(tour_size);
+
+    // create pheremone matrix to match based on distance matrix
+    pmatrix = PheremoneMatrix(ltmatrix);
+}
+
+// this code was corrected to resolve out-of-bounds exceptions by Google Gemini Argon on Nov 9th 2026
+void Swarm::explore() {
+    // clear ant_paths
+    for (std::vector<int>& path : ant_paths) {
+        std::fill(path.begin(), path.end(), -1); // reset to -1 or any invalid value
+    }
+
+    // For each ant in the swarm, we calculate her move iteratively for each position in the tour.
+    for (size_t agent = 0; agent < swarm_size; agent++) {
+        
+        // options vector, the list of nodes that have not been visited yet
+        std::vector<int> options(tour_size - 1);
+        // we fill options with all nodes except start
+        for (size_t i = 2; i <= tour_size; i++) {
+            options[i-2] = i;
+        }
+
+        // reset current so that we start at 1
+        int current_node = 1;
+        ant_paths[agent][0] = current_node;
+
+        for (size_t position = 1; position < tour_size; position++) {
+            
+            // calculate next move for the ant
+            int chosen_node = next_move(current_node, options);
+            
+            // add chosen node to path
+            ant_paths[agent][position] = chosen_node;
+
+            // remove next move from options
+            options.erase(std::remove(options.begin(), options.end(), chosen_node), options.end());
+            current_node = chosen_node;
+        }
+        
+    }
+}
+
+int Swarm::next_move(int current_node, const std::vector<int>& options) {
+
+    // create a weight vector based on pheromone trail levels and desirability ( distances )
+    std::vector<double> weights(options.size());
+    for (size_t i = 0; i < options.size(); i++) {
+
+        double d = matrix.get_distance(current_node, options[i]);
+        double p = pmatrix.get_pheromone(current_node, options[i]);
+
+        // troubleshooting safeguard
+        if (d <= 0.0) d = 1e-6; 
+        if (p <= 0.0) p = 1e-6;
+
+        // penalize large distances and reward high pheromone levels
+        weights[i] = std::pow(p, alpha) * std::pow(1.0 / d, beta);
+    }
+
+    // build a discrete distribution based on the weights
+    std::discrete_distribution<int> dist(weights.begin(), weights.end());
+
+    //random number generator
+    // generate rand seq with static instead of restart
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
+    // select probalistically based on weight
+    int index = dist(gen);
+
+    // return selected node index in integer type
+    return options[index];
+}
+
+// Trails are usually updated when all ants have completed their solution, 
+// increasing or decreasing the level of trails corresponding to moves that were "good" or "bad" solutions
+
+void Swarm::updatePheremones() {
+    
+    // first we apply 'evaporation' according to literature
+    double evaporation_rate = 0.1; // 0.1 = 10% evaporation
+    for (size_t i = 1; i <= tour_size; i++) {
+            for (size_t j = 1; j < i; j++) {
+                double current = pmatrix.get_pheromone(i, j);
+                pmatrix.set_pheromone(i, j, current * (1.0 - evaporation_rate));
+            }
+        }
+
+    // for each ant path, update pheromone levels based on the path length
+    for (const auto& path : ant_paths) {
+        
+        // calculate the total length of the path
+        double path_length = 0.0;
+        for (size_t i = 0; i < tour_size - 1; i++) {
+            path_length += matrix.get_distance(path[i], path[i + 1]);
+        }
+        // add cost of returning to start to path_length
+        path_length += matrix.get_distance(path[tour_size - 1], path[0]);
+
+        // update best_tour if current path is shorter
+        if (path_length < best_length) {
+            best_length = path_length;
+            best_tour = path;
+        }
+
+        // update pheromone levels for nodes on that path inversely proportional to the path length
+        for (size_t i = 0; i < tour_size -1; i++) {
+            double current_pheromone = pmatrix.get_pheromone(path[i], path[i + 1]);
+            pmatrix.set_pheromone(path[i], path[i + 1], current_pheromone + (1.0 / path_length));
+        }
+
+        // TODO : pheromone update on the return edge?
+        
+    }
+}
+
