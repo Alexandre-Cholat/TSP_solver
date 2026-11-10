@@ -9,24 +9,26 @@
 // https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms
 class AntSwarmSolver : public Solver {
     public:
-    std::vector<int> solve(const LowerTriMatrix& matrix) override {
+    
+    // default: alpha = 1, beta = 3, swarm_size = 1000, iterations = 100
+    std::vector<int> solve(const LowerTriMatrix& matrix) override {return solve(matrix, 1.0, 3.0, 1000, 100); }
+    
+    std::vector<int> solve(const LowerTriMatrix& matrix, double alpha, double beta, size_t swarm_size, size_t maxIt) {
         // creating return tour
         std::vector<int> tour;
         size_t nodes = matrix.get_dimension();
         tour.reserve(nodes);
         
-        // build an ant swarm of N agents
-        const size_t N = 1000;
-        Swarm ants(N, matrix);
+        // build an ant swarm of swarm_size agents
+        Swarm ants(swarm_size, matrix);
 
         //set hyperparameters
         // If α= 0, the closest cities are selected (greedy)
         // If β= 0, only pheromone ampliﬁcation is at work
-        ants.set_alpha(1);
-        ants.set_beta(3);
+        ants.set_alpha(alpha);
+        ants.set_beta(beta);
 
         // for desired number of iterations maxIt:
-        size_t maxIt = 100;
         for(size_t iteration = 0; iteration <= maxIt; ++iteration){
             // ants explore N paths semi randomly
             ants.explore();
