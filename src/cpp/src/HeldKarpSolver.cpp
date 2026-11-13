@@ -14,11 +14,11 @@ std::vector<int> HeldKarpSolver:: solve(const LowerTriMatrix& matrix) {
     const double INF = std::numeric_limits<double>::infinity();
     size_t num_states = 1ULL << n;
 
-    // DP state: dp[mask][u] stores min distance starting at node 0, visiting subset 'mask', ending at 'u'
+    // dp[mask][u] stores min distance starting at node 0, visiting subset 'mask', ending at 'u'
     std::vector<std::vector<double>> dp(num_states, std::vector<double>(n, INF));
     std::vector<std::vector<int>> parent(num_states, std::vector<int>(n, -1));
 
-    // Base case: start at node 0 (1-based ID: 1)
+    // Base case: start at node 0
     dp[1][0] = 0.0;
 
     for (size_t mask = 1; mask < num_states; ++mask) {
@@ -60,7 +60,7 @@ std::vector<int> HeldKarpSolver:: solve(const LowerTriMatrix& matrix) {
 
     if (last_node == -1) return {};
 
-    // Reconstruct path
+    // build tour
     std::vector<int> tour;
     tour.reserve(n);
 
@@ -68,7 +68,7 @@ std::vector<int> HeldKarpSolver:: solve(const LowerTriMatrix& matrix) {
     int curr_node = last_node;
 
     while (curr_node != -1) {
-        tour.push_back(curr_node + 1); // convert to 1-based node ID
+        tour.push_back(curr_node + 1);
         int p = parent[curr_mask][curr_node];
         curr_mask ^= (1ULL << curr_node);
         curr_node = p;
