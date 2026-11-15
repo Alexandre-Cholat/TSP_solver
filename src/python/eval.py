@@ -3,6 +3,8 @@ import time
 from pathlib import Path
 import random
 import math
+import numpy as np
+import matplotlib.pyplot as plt
 
 # to run : 
 # .venv/bin/activate
@@ -159,18 +161,93 @@ def benchmark_multiple_instances_with_scaling(n_nodes_list: list[int], n_instanc
         mean_cost = stats["cost"] / num_scales
         print(f"  {name:<10} | Overall Avg Time: {mean_time_ms:8.3f} ms | Overall Avg Cost: {mean_cost:8.1f}")
 
-def visualize():
-    matrix , coord = generate_random_matrix(10, 5, 20, 42)
+def visualize_alpha_sensitivity(
+    matrix: tsp_bindings.LowerTriMatrix,
+    fixed_beta: float = 3.0,
+    swarm_size: int = 60,
+    max_it: int = 40,
+    n_runs: int = 5,
+):
+
+    alpha_values = [0.5, 1.0, 2.0, 3.0, 4.0, 5.0]
     solver = tsp_bindings.AntSwarmSolver()
-    elapsed, cost, tour = measure_solver(solver, matrix)
-    print(f"Elapsed: {elapsed:.6f} sec, Cost: {cost:.2f}, Tour: {tour}")
-    tsp_bindings.visualize_tour(coord, tour)
+    n_nodes = matrix.get_dimension()
+
+    avg_costs = []
+    for alpha in alpha_values:
+        run_costs = [
+            compute_tour_cost(matrix, solver.solve(matrix, alpha, fixed_beta, swarm_size, max_it))
+            for _ in range(n_runs)
+        ]
+        avg_costs.append(sum(run_costs) / n_runs)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(alpha_values, avg_costs, marker="o", linewidth=2, color="#1f77b4", label="Average Tour Cost")
+
+    ax.set_title(
+        f"AntSwarm Sensitivity to α (N={n_nodes}, β={fixed_beta}, swarm={swarm_size}, maxIt={max_it}, runs={n_runs})"
+    )
+    ax.set_xlabel("α (Pheromone Exponent)")
+    ax.set_ylabel("Average Tour Length (Cost)")
+    ax.grid(True, linestyle="--", alpha=0.4)
+    ax.legend()
+    plt.tight_layout()
+
+    vis_dir = PROJECT_ROOT / "visualisations"
+    vis_dir.mkdir(parents=True, exist_ok=True)
+    output_file = vis_dir / "alpha_sensitivity.png"
+    plt.savefig(output_file, dpi=150)
+    print(f"Saved plot to {output_file}")
+    plt.show()
+
+def visualize_beta_sensitivity(
+    matrix: tsp_bindings.LowerTriMatrix,
+    fixed_alpha: float = 1.0,
+    swarm_size: int = 60,
+    max_it: int = 40,
+    n_runs: int = 5,
+):
+
+    beta_values = [0.5, 1.0, 2.0, 3.0, 4.0, 5.0]
+    solver = tsp_bindings.AntSwarmSolver()
+    n_nodes = matrix.get_dimension()
+
+    avg_costs = []
+    for beta in beta_values:
+        run_costs = [
+            compute_tour_cost(matrix, solver.solve(matrix, fixed_alpha, beta, swarm_size, max_it))
+            for _ in range(n_runs)
+        ]
+        avg_costs.append(sum(run_costs) / n_runs)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(beta_values, avg_costs, marker="o", linewidth=2, color="#ff7f0e", label="Average Tour Cost")
+
+    ax.set_title(
+        f"AntSwarm Sensitivity to β (N={n_nodes}, α={fixed_alpha}, swarm={swarm_size}, maxIt={max_it}, runs={n_runs})"
+    )
+    ax.set_xlabel("β (Distance Heuristic Exponent)")
+    ax.set_ylabel("Average Tour Length (Cost)")
+    ax.grid(True, linestyle="--", alpha=0.4)
+    ax.legend()
+    plt.tight_layout()
+
+    vis_dir = PROJECT_ROOT / "visualisations"
+    vis_dir.mkdir(parents=True, exist_ok=True)
+    output_file = vis_dir / "beta_sensitivity.png"
+    plt.savefig(output_file, dpi=150)
+    print(f"Saved plot to {output_file}")
+    plt.show()
 
 def main():
 
     # simple_test(18)
+    matrix, _ = generate_random_matrix(n_nodes=100, seed=42)
+    #visualize_alpha_sensitivity(matrix, fixed_beta=3.0, swarm_size=60, max_it=40, n_runs=5)
+    visualize_beta_sensitivity(matrix, fixed_alpha=1.0, swarm_size=60, max_it=40, n_runs=5)
 
-    benchmark_multiple_instances_with_scaling([50, 100, 150, 200], 2)
+
+    #benchmark_multiple_instances_with_scaling([50, 100, 150, 200], 2)
 
 if __name__ == "__main__":
     main()
