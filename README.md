@@ -1,8 +1,16 @@
 # TSP_solver
 
-A C++20 command-line solver for the Symmetric Traveling Salesman Problem (TSP) that parses plain and gzip-compressed TSPLIB benchmark instances and generates standard TSPLIB `.tour` files.
+A **C++20** command-line solver for the Symmetric Traveling Salesman Problem (TSP) that parses [TSPLIB](https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) benchmark instances (`NODE_COORD_SECTION` with `EUC_2D`, `GEO`, and `ATT` metrics, as well as `EDGE_WEIGHT_SECTION` lower-triangular matrices) and outputs valid TSPLIB `.tour` files.
 
-Alongside a deterministic baseline solver, the project implements an **Ant Colony Optimization (ACO)** metaheuristic. Inspired by the foraging behavior of ants, a swarm of artificial agents iteratively constructs complete Hamiltonian tours across the graph. At each step, an ant selects its next unvisited city probabilistically based on a desirability weight combining pheromone trail intensity and heuristic visibility ($\tau_{ij} / d_{ij}$), naturally favoring shorter edges and established routes. After all ants complete a tour in a given iteration, pheromone trails are deposited along each ant's path inversely proportional to its total tour length ($1 / L$). Over successive iterations, shorter tours accumulate stronger pheromone concentrations, guiding the swarm toward high-quality solutions while retaining stochastic exploration to avoid local optima.
+## Solvers
+
+* **Trivial (`trivial`)**: A deterministic baseline solver that visits vertices sequentially ($1 \rightarrow 2 \rightarrow \dots \rightarrow N \rightarrow 1$).
+* **Held-Karp (`held-karp`)**: An exact dynamic programming solver using bitmask subset representation ($O(n^2 2^n)$ time, $O(n 2^n)$ space) to compute provably optimal tours for small instances ($n \le 20$).
+* **Ant Colony Optimization (`aco` / `AntSwarmSolver`)**: A stochastic metaheuristic inspired by ant foraging behavior. A swarm of artificial agents iteratively constructs complete Hamiltonian tours across a flattened 1D lower-triangular distance matrix. At each step, an ant selects its next unvisited city $j$ from city $i$ probabilistically using a desirability weight combining pheromone intensity $\tau_{ij}$ and heuristic visibility $\eta_{ij} = 1 / d_{ij}$:
+
+  $$w_{ij} = (\tau_{ij})^{\alpha} \cdot \left(\frac{1}{d_{ij}}\right)^{\beta}$$
+
+  After each iteration, existing pheromone trails undergo evaporation ($\rho = 0.10$) and each ant deposits new pheromone along its tour inversely proportional to its total tour length ($\Delta \tau_{ij} = 1 / L$). Over successive iterations, shorter routes accumulate stronger pheromone concentrations, guiding the swarm toward near-optimal solutions on larger instances while maintaining exploration to escape local optima.
 
 ## Benchmark Instances (TSPLIB)
 
@@ -23,16 +31,9 @@ The solver supports symmetric TSP files (both `.tsp` and `.tsp.gz`) formatted wi
 
 ## Building
 
-Compile the solver and unit test suite in Release mode (`-O3`):
-
 ```bash
-mkdir -p build
-cd build
-cmake ..
-make
+bash build-TSPsolver.sh
 ```
-
-*(Alternatively, run `bash build-TSPsolver.sh` from the project root if using the build script.)*
 
 To run the GoogleTest suite:
 
@@ -64,16 +65,17 @@ Generate a baseline tour using the trivial solver:
 ```bash
 ./build/TSPsolver pa561.tsp.gz pa561.tsp.tour -m trivial
 ```
-
 ## Evaluating Tours (`eval.py`)
 
 Use the included `eval.py` script to verify that a generated `.tour` file forms a valid Hamiltonian cycle (visiting every city `1..N` exactly once), compute its total tour distance, and compare your solver's performance against optimal TSPLIB reference tours:
 
 ```bash
-python3 eval.py <instance_path> <tour_path>
+source .venv/bin/activate
+cd build
+cmake -DBUILD_PYTHON=ON ..
+cmake --build .
+cd ..
+python src/python/eval.py
 ```
 
-For example:
-```bash
-python3 eval.py pa561.tsp.gz pa561.tsp.tour
-```
+* **Python Evaluation (`pybind11`)**: Exposes `LowerTriMatrix` and all C++ solvers to `src/python/eval.py` for runtime scaling benchmarks and $(\alpha, \beta)$ hyperparameter sensitivity analysis.
