@@ -65,6 +65,30 @@ TEST(AntSwarmSolverTest, TestCase) {
     EXPECT_EQ(tour, expected);
 }
 
+TEST(AntSwarmSolverTest, SolveWithParameters) {
+    AntSwarmSolver solver;
+    size_t dimension = 5;
+    std::vector<double> weights = {
+        10.0,
+        15.0, 20.0,
+        25.0, 30.0, 35.0,
+        40.0, 45.0, 50.0, 55.0
+    };
+    LowerTriMatrix matrix(dimension, weights);
+
+    // 5-parameter solve with alpha, beta, swarm_size, and maxIt
+    double alpha = 1.5;
+    double beta = 4.0;
+    size_t swarm_size = 20;
+    size_t maxIt = 30;
+
+    std::vector<int> tour = solver.solve(matrix, alpha, beta, swarm_size, maxIt);
+
+    std::sort(tour.begin(), tour.end());
+    std::vector<int> expected = {1, 2, 3, 4, 5};
+    EXPECT_EQ(tour, expected);
+}
+
 
 TEST(HeldKarpSolverTest, EdgeCasesEmptyAndSingleNode) {
     HeldKarpSolver solver;
