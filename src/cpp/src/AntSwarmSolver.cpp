@@ -27,7 +27,9 @@ std::vector<int> AntSwarmSolver:: solve(const LowerTriMatrix& matrix, double alp
         // for N paths, update pheremone matrix according to perfromance
         ants.updatePheremones();
         // repeat
-        std::cout << "Iteration "<< iteration << " of swarm, shortest tour = " << ants.get_best_length() << " .\n";
+        
+        // for trouble shooting:
+        // std::cout << "Iteration "<< iteration << " of swarm, shortest tour = " << ants.get_best_length() << " .\n";
     }
     std::cout << "Length of shortest tour : "<<  ants.get_best_length() << " .\n";
     
