@@ -2,6 +2,8 @@ import sys
 import time
 from pathlib import Path
 import random
+import math
+
 # to run : 
 # .venv/bin/activate
 # cd build
@@ -9,38 +11,42 @@ import random
 # cmake --build .
 # python src/python/eval.py
 
-# TODO:     • Compare the quality of the solutions obtained by each algorithm (i.e., the length of the tour)
-        # • Analyze the scalability of each algorithm as the size of the instances increases.
-        # • Analyze the behavior of the algorithms on specific instances using visualizations tools.
+# TODO: Analyze the behavior of the algorithms on specific instances using visualizations tools.
 
-# eval choice: use parser or directly pass lower triangular matrix to the solvers?
+# eval choice: directly pass lower triangular matrix to the solvers instead of using parser.cpp
 
-# Locate the 'build' directory relative to this file (src/python/eval.py -> ../../build)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 BUILD_DIR = PROJECT_ROOT / "build"
 sys.path.insert(0, str(BUILD_DIR))
 
 import tsp_bindings
 
-# alt: use instance_generator.py to generate instances?
-def generate_random_matrix(n_nodes: int, seed: int = 42) -> tsp_bindings.LowerTriMatrix:
-    """Generates a C++ LowerTriMatrix with random weights for N nodes."""
-    random.seed(seed)
-    num_weights = (n_nodes * (n_nodes - 1)) // 2
-    weights = [random.uniform(10.0, 100.0) for _ in range(num_weights)]
-    
-    # Instantiate LowerTriMatrix class
-    return tsp_bindings.LowerTriMatrix(n_nodes, weights)
 
-def generate_n_random_matrix(n_nodes: int, n_instances: int, seed: int = 42) -> list[tsp_bindings.LowerTriMatrix]:
-    """Generates a list of C++ LowerTriMatrix instances with random weights for N nodes."""
+def generate_random_matrix(n_nodes: int, min_coord: float = 0.0, max_coord: float = 100.0, seed: int = 42) -> tuple[tsp_bindings.LowerTriMatrix, list[tuple[float, float]]]:
+    """Generates random 2D coordinates and builds a C++ LowerTriMatrix"""
     random.seed(seed)
-    matrices = []
-    for _ in range(n_instances):
-        num_weights = (n_nodes * (n_nodes - 1)) // 2
-        weights = [random.uniform(10.0, 100.0) for _ in range(num_weights)]
-        matrices.append(tsp_bindings.LowerTriMatrix(n_nodes, weights))
-    return matrices
+    coords = [
+        (
+            round(random.uniform(min_coord, max_coord), 2),
+            round(random.uniform(min_coord, max_coord), 2),
+        )
+        for _ in range(n_nodes)
+    ]
+
+    weights = [
+        math.hypot(coords[i][0] - coords[j][0], coords[i][1] - coords[j][1])
+        for i in range(n_nodes)
+        for j in range(i)
+    ]
+    # Instantiate LowerTriMatrix class
+    return tsp_bindings.LowerTriMatrix(n_nodes, weights), coords
+    
+def generate_n_random_matrix(n_nodes: int, n_instances: int, min_coord: float = 0.0, max_coord: float = 100.0, seed: int = 42) -> list[tuple[tsp_bindings.LowerTriMatrix, list[tuple[float, float]]]]:
+    """Generates a list of (LowerTriMatrix, coords) for N nodes."""
+    return [
+        generate_random_matrix(n_nodes, min_coord, max_coord, seed)
+        for _ in range(n_instances)
+    ]
 
 
 def compute_tour_cost(matrix: tsp_bindings.LowerTriMatrix, tour: list[int]) -> float:
@@ -90,9 +96,7 @@ def measure_solver_multiple(solver, matrices: list[tsp_bindings.LowerTriMatrix])
 
 
 def simple_test(n_nodes: int = 10):
-    matrix = generate_random_matrix(n_nodes)
-
-    # Instantiate solvers
+    matrix, coords = generate_random_matrix(n_nodes)
     solvers = {
         "Trivial": tsp_bindings.TrivialSolver(),
         "AntSwarm": tsp_bindings.AntSwarmSolver(),
@@ -105,7 +109,8 @@ def simple_test(n_nodes: int = 10):
         print(f"{name:<10} | Time: {elapsed * 1000:8.3f} ms | Cost: {cost:8.1f} | Tour: {tour}")
 
 def benchmark_multiple_instances(n_nodes: int, n_instances: int):
-    matrices = generate_n_random_matrix(n_nodes, n_instances)
+    instances = generate_n_random_matrix(n_nodes, n_instances)
+    matrices = [matrix for matrix, _ in instances]
     solvers = {
         "Trivial": tsp_bindings.TrivialSolver(),
         "AntSwarm": tsp_bindings.AntSwarmSolver(),
@@ -123,9 +128,9 @@ def benchmark_multiple_instances(n_nodes: int, n_instances: int):
 def benchmark_multiple_instances_with_scaling(n_nodes_list: list[int], n_instances: int):
     # Instantiate solvers (add/remove any solver here and the tracking adapts automatically)
     solvers = {
-        "Trivial": tsp_bindings.TrivialSolver(),
+        #"Trivial": tsp_bindings.TrivialSolver(),
         "AntSwarm": tsp_bindings.AntSwarmSolver(),
-        "HeldKarp": tsp_bindings.HeldKarpSolver(),
+        #"HeldKarp": tsp_bindings.HeldKarpSolver(),
     }
 
     # Dynamically track cumulative averages per solver
@@ -135,7 +140,8 @@ def benchmark_multiple_instances_with_scaling(n_nodes_list: list[int], n_instanc
     print(f"--- Benchmark Multiple Instances with Scaling (Instances = {n_instances}) ---")
     
     for n_nodes in n_nodes_list:
-        matrices = generate_n_random_matrix(n_nodes, n_instances)
+        instances = generate_n_random_matrix(n_nodes, n_instances)
+        matrices = [matrix for matrix, _ in instances]
         print(f"\nN = {n_nodes}:")
         for name, solver in solvers.items():
             total_elapsed, total_cost, tours = measure_solver_multiple(solver, matrices)
@@ -147,16 +153,24 @@ def benchmark_multiple_instances_with_scaling(n_nodes_list: list[int], n_instanc
             
             print(f"  {name:<10} | Avg Time: {avg_elapsed * 1000:8.3f} ms | Avg Cost: {avg_cost:8.1f}")
 
-    print("\n--- Overall Benchmarking Average Results (Across All N) ---")
+    print(f"\n--- Overall Benchmarking Average Results for n = {n_nodes_list} ---")
     for name, stats in overall_stats.items():
         mean_time_ms = (stats["time"] / num_scales) * 1000
         mean_cost = stats["cost"] / num_scales
         print(f"  {name:<10} | Overall Avg Time: {mean_time_ms:8.3f} ms | Overall Avg Cost: {mean_cost:8.1f}")
 
+def visualize():
+    matrix , coord = generate_random_matrix(10, 5, 20, 42)
+    solver = tsp_bindings.AntSwarmSolver()
+    elapsed, cost, tour = measure_solver(solver, matrix)
+    print(f"Elapsed: {elapsed:.6f} sec, Cost: {cost:.2f}, Tour: {tour}")
+    tsp_bindings.visualize_tour(coord, tour)
+
 def main():
 
     # simple_test(18)
 
-    benchmark_multiple_instances_with_scaling([5, 10, 15, 20], 5)
+    benchmark_multiple_instances_with_scaling([50, 100, 150, 200], 2)
+
 if __name__ == "__main__":
     main()
