@@ -1,56 +1,151 @@
 #include <gtest/gtest.h>
+#include "TrivialSolver.hpp"
+#include "AntSwarmSolver.hpp"
+#include "HeldKarpSolver.hpp"
 #include <vector>
-#include "LowerTriMatrix.hpp"
-#include "algorithms/trivial.hpp"
 
-// Test 1: Verify LowerTriMatrix distance lookup
-TEST(LowerTriMatrixTest, DistanceLookup) {
-    // 3 cities: dim = 3
-    // Lower triangle weights for pairs: (1,0)=5.0, (2,0)=8.0, (2,1)=4.0
-    size_t dim = 3;
-    std::vector<double> flat_weights = {5.0, 8.0, 4.0};
-
-    LowerTriMatrix matrix(dim, flat_weights);
-
-    // Distance to self should be 0
-    EXPECT_DOUBLE_EQ(matrix.get_distance(0, 0), 0.0);
-    EXPECT_DOUBLE_EQ(matrix.get_distance(1, 1), 0.0);
-
-    // Distance queries should be symmetric: d(i,j) == d(j,i)
-    EXPECT_DOUBLE_EQ(matrix.get_distance(1, 0), 5.0);
-    EXPECT_DOUBLE_EQ(matrix.get_distance(0, 1), 5.0);
-
-    EXPECT_DOUBLE_EQ(matrix.get_distance(2, 0), 8.0);
-    EXPECT_DOUBLE_EQ(matrix.get_distance(0, 2), 8.0);
-
-    EXPECT_DOUBLE_EQ(matrix.get_distance(2, 1), 4.0);
-    EXPECT_DOUBLE_EQ(matrix.get_distance(1, 2), 4.0);
-}
-
-// Test 2: Verify Trivial solver generates sequence 1 -> 2 -> ... -> N
-TEST(TrivialAlgorithmTest, PermutationGeneration) {
-    size_t dim = 5;
-    std::vector<int> tour = solve_trivial(dim);
-
-    ASSERT_EQ(tour.size(), dim);
-    for (size_t i = 0; i < dim; ++i) {
-        EXPECT_EQ(tour[i], static_cast<int>(i + 1));
+// Helper to compute total round-trip tour cost
+static double compute_tour_cost(const LowerTriMatrix& matrix, const std::vector<int>& tour) {
+    if (tour.size() <= 1) return 0.0;
+    double cost = 0.0;
+    for (size_t i = 0; i < tour.size(); ++i) {
+        int u = tour[i];
+        int v = tour[(i + 1) % tour.size()];
+        cost += matrix.get_distance(u, v);
     }
+    return cost;
 }
 
-// Test 3: Verify tour distance calculation
-TEST(TrivialAlgorithmTest, TourLengthCalculation) {
-    size_t dim = 3;
-    std::vector<double> flat_weights = {5.0, 8.0, 4.0}; // d(1,0)=5, d(2,0)=8, d(2,1)=4
-    LowerTriMatrix matrix(dim, flat_weights);
-
-    std::vector<int> tour = {1, 2, 3}; // Tour: 1 -> 2 -> 3 -> 1 (node 1=idx 0, node 2=idx 1, node 3=idx 2)
+TEST(TrivialSolverTest, ReturnsSortedVertices) {
+    TrivialSolver solver;
     
-    // Path:
-    // 1 -> 2 (idx 0 to 1): 5.0
-    // 2 -> 3 (idx 1 to 2): 4.0
-    // 3 -> 1 (idx 2 to 0): 8.0
-    // Total = 5.0 + 4.0 + 8.0 = 17.0
-    double total_length = calculate_tour_length(matrix, tour);
-    EXPECT_DOUBLE_EQ(total_length, 17.0);
+    std::vector<double> dummy_weights = {0.0, 0.0, 0.0};
+    int dimension = 5;
+    LowerTriMatrix matrix(dimension, dummy_weights);
+    std::vector<int> tour = solver.solve(matrix);
+
+    std::vector<int> expected = {1, 2, 3, 4, 5};
+    
+    EXPECT_EQ(tour, expected);
+}
+
+TEST(AntSwarmSolverTest, SingleNodeEdgeCase) {
+    AntSwarmSolver solver;
+    LowerTriMatrix matrix(1, {});
+    std::vector<int> tour = solver.solve(matrix);
+
+    ASSERT_EQ(tour.size(), 1u);
+    EXPECT_EQ(tour[0], 1);
+}
+
+TEST(AntSwarmSolverTest, DoubleNodeEdgeCase) {
+    AntSwarmSolver solver;
+    LowerTriMatrix matrix(2, {42.0});
+    std::vector<int> tour = solver.solve(matrix);
+
+    std::sort(tour.begin(), tour.end());
+    std::vector<int> expected = {1, 2};
+    EXPECT_EQ(tour, expected);
+}
+
+TEST(AntSwarmSolverTest, TestCase) {
+    AntSwarmSolver solver;
+    size_t dimension = 5;
+    std::vector<double> weights = {
+        10.0,
+        15.0, 20.0,
+        25.0, 30.0, 35.0,
+        40.0, 45.0, 50.0, 55.0
+    };
+    LowerTriMatrix matrix(dimension, weights);
+    std::vector<int> tour = solver.solve(matrix);
+
+    std::sort(tour.begin(), tour.end());
+    std::vector<int> expected = {1, 2, 3, 4, 5};
+    EXPECT_EQ(tour, expected);
+}
+
+TEST(AntSwarmSolverTest, SolveWithParameters) {
+    AntSwarmSolver solver;
+    size_t dimension = 5;
+    std::vector<double> weights = {
+        10.0,
+        15.0, 20.0,
+        25.0, 30.0, 35.0,
+        40.0, 45.0, 50.0, 55.0
+    };
+    LowerTriMatrix matrix(dimension, weights);
+
+    // 5-parameter solve with alpha, beta, swarm_size, and maxIt
+    double alpha = 1.5;
+    double beta = 4.0;
+    size_t swarm_size = 20;
+    size_t maxIt = 30;
+
+    std::vector<int> tour = solver.solve(matrix, alpha, beta, swarm_size, maxIt);
+
+    std::sort(tour.begin(), tour.end());
+    std::vector<int> expected = {1, 2, 3, 4, 5};
+    EXPECT_EQ(tour, expected);
+}
+
+
+TEST(HeldKarpSolverTest, EdgeCasesEmptyAndSingleNode) {
+    HeldKarpSolver solver;
+
+    LowerTriMatrix empty_matrix(0, {});
+    EXPECT_TRUE(solver.solve(empty_matrix).empty());
+
+    LowerTriMatrix single_matrix(1, {});
+    std::vector<int> tour = solver.solve(single_matrix);
+    ASSERT_EQ(tour.size(), 1u);
+    EXPECT_EQ(tour[0], 1);
+}
+
+TEST(HeldKarpSolverTest, DoubleNodeEdgeCase) {
+    HeldKarpSolver solver;
+    LowerTriMatrix matrix(2, {42.0});
+    std::vector<int> tour = solver.solve(matrix);
+
+    std::vector<int> expected = {1, 2};
+    EXPECT_EQ(tour, expected);
+    EXPECT_DOUBLE_EQ(compute_tour_cost(matrix, tour), 84.0);
+}
+
+TEST(HeldKarpSolverTest, FindsExactOptimumFourNodes) {
+    HeldKarpSolver solver;
+    std::vector<double> weights = {
+        1.0,              
+        10.0, 1.0,        
+        1.0, 10.0, 1.0    
+    };
+    LowerTriMatrix matrix(4, weights);
+    std::vector<int> tour = solver.solve(matrix);
+
+    ASSERT_EQ(tour.size(), 4u);
+    EXPECT_EQ(tour[0], 1); 
+    EXPECT_DOUBLE_EQ(compute_tour_cost(matrix, tour), 4.0);
+
+    std::sort(tour.begin(), tour.end());
+    std::vector<int> expected_nodes = {1, 2, 3, 4};
+    EXPECT_EQ(tour, expected_nodes);
+}
+
+TEST(HeldKarpSolverTest, AvoidsGreedyTrapFiveNodes) {
+    HeldKarpSolver solver;
+    std::vector<double> weights = {
+        2.0,                    
+        1.0, 2.0,               
+        20.0, 20.0, 2.0,        
+        2.0, 20.0, 20.0, 2.0    
+    };
+    LowerTriMatrix matrix(5, weights);
+    std::vector<int> tour = solver.solve(matrix);
+
+    ASSERT_EQ(tour.size(), 5u);
+    EXPECT_DOUBLE_EQ(compute_tour_cost(matrix, tour), 10.0);
+
+    std::sort(tour.begin(), tour.end());
+    std::vector<int> expected_nodes = {1, 2, 3, 4, 5};
+    EXPECT_EQ(tour, expected_nodes);
 }

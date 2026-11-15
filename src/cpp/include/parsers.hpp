@@ -1,0 +1,39 @@
+#pragma once
+#include <string>
+#include <vector>
+
+
+class BaseParser {
+protected:
+    std::string filepath;
+    int dimension = 0;
+
+public:
+    BaseParser(const std::string& path) : filepath(path) {}
+    virtual ~BaseParser() = default;
+
+    // Returns a pair: {dimension, flattened_lower_triangular_matrix}
+    virtual std::pair<int, std::vector<double>> parse() = 0;
+
+    std::vector<std::string> read_lines();
+};
+
+struct Node {
+    int id;
+    double x;
+    double y;
+};
+
+class CoordParser : public BaseParser {
+public:
+    CoordParser(const std::string& path) : BaseParser(path) {}
+
+    std::pair<int, std::vector<double>> parse() override;
+};
+
+class LowerTriParser : public BaseParser {
+public:
+    LowerTriParser(const std::string& path) : BaseParser(path) {}
+
+    std::pair<int, std::vector<double>> parse() override;
+};
