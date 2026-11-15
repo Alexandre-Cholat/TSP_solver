@@ -23,6 +23,11 @@ Swarm:: Swarm(size_t n, const LowerTriMatrix& ltmatrix){
 
     // create pheremone matrix to match based on distance matrix
     pmatrix = PheremoneMatrix(ltmatrix);
+
+    //default hyper params
+    alpha = 1;
+    beta = 3;
+
 }
 
 // this code was corrected to resolve out-of-bounds exceptions by Google Gemini Argon on Nov 9th 2026
