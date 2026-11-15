@@ -67,9 +67,6 @@ if(BUILD_PYTHON)
     target_link_libraries(tsp_bindings PRIVATE ZLIB::ZLIB)
 endif()
 
-# Link zlib
-target_link_libraries(tsp_bindings PRIVATE ZLIB::ZLIB)
-
 # --- Tests Executable with GoogleTest ---
 enable_testing()
 file(GLOB TEST_SOURCES "${TEST_DIR}/*.cpp")
