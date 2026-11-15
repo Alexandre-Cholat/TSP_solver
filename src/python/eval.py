@@ -6,16 +6,12 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-# to run : 
+# HOW TO RUN: 
 # .venv/bin/activate
 # cd build
 # cmake -DBUILD_PYTHON=ON ..
 # cmake --build .
 # python src/python/eval.py
-
-# TODO: Analyze the behavior of the algorithms on specific instances using visualizations tools.
-
-# eval choice: directly pass lower triangular matrix to the solvers instead of using parser.cpp
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 BUILD_DIR = PROJECT_ROOT / "build"
@@ -361,15 +357,23 @@ def visualize_alpha_beta_heatmap(
 
 
 def main():
-    benchmark_multiple_instances_with_scaling([50, 100, 150, 200], 2)
 
-    matrix, _ = generate_random_matrix(n_nodes=100, seed=42)
-    
+    # Configuration Parameters
+    SEED = 42
+    SCALING_TOUR_SIZES = [50, 100, 150, 200]
+    EXACT_VS_ACO_SIZES = [5, 10, 15, 20]    # Keep <= 20 due to Held-Karp limits
+    SENSITIVITY_TOUR_SIZE = 100
+
+    print("\nRuntime and tour quality scaling of AntSwarm on larger instances")
+    benchmark_multiple_instances_with_scaling(n_nodes_list=SCALING_TOUR_SIZES, n_instances=2)
+
+    print("\nGenerating plots...")
+    visualize_multiple_instances_with_scaling(n_nodes_list=EXACT_VS_ACO_SIZES, n_instances=5, seed=SEED)
+
+    matrix, _ = generate_random_matrix(n_nodes=SENSITIVITY_TOUR_SIZE, seed=SEED)
     visualize_alpha_sensitivity(matrix, fixed_beta=3.0, swarm_size=60, max_it=40, n_runs=5)
     visualize_beta_sensitivity(matrix, fixed_alpha=1.0, swarm_size=60, max_it=40, n_runs=5)
-    visualize_multiple_instances_with_scaling([5, 10, 15, 20], n_instances=5)
-
-    visualize_alpha_beta_heatmap(matrix, swarm_size = 250)
+    visualize_alpha_beta_heatmap(matrix, swarm_size=250)
 
 
 
