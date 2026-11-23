@@ -371,8 +371,8 @@ def main():
     visualize_multiple_instances_with_scaling(n_nodes_list=EXACT_VS_ACO_SIZES, n_instances=5, seed=SEED)
 
     matrix, _ = generate_random_matrix(n_nodes=SENSITIVITY_TOUR_SIZE, seed=SEED)
-    visualize_alpha_sensitivity(matrix, fixed_beta=3.0, swarm_size=60, max_it=40, n_runs=5)
-    visualize_beta_sensitivity(matrix, fixed_alpha=1.0, swarm_size=60, max_it=40, n_runs=5)
+    # visualize_alpha_sensitivity(matrix, fixed_beta=3.0, swarm_size=60, max_it=40, n_runs=5)
+    # visualize_beta_sensitivity(matrix, fixed_alpha=1.0, swarm_size=60, max_it=40, n_runs=5)
     visualize_alpha_beta_heatmap(matrix, swarm_size=250)
 
 
