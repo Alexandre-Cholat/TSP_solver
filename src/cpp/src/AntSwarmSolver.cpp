@@ -31,7 +31,7 @@ std::vector<int> AntSwarmSolver:: solve(const LowerTriMatrix& matrix, double alp
         // for trouble shooting:
         // std::cout << "Iteration "<< iteration << " of swarm, shortest tour = " << ants.get_best_length() << " .\n";
     }
-    std::cout << "Length of shortest tour : "<<  ants.get_best_length() << " .\n";
+    std::cout << "Solved. Length of shortest tour : "<<  ants.get_best_length() << " .\n";
     
     return ants.get_best();
 }

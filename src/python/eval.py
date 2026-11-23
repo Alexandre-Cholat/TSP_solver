@@ -126,9 +126,9 @@ def benchmark_multiple_instances(n_nodes: int, n_instances: int):
 def benchmark_multiple_instances_with_scaling(n_nodes_list: list[int], n_instances: int):
     # Instantiate solvers (add/remove any solver here and the tracking adapts automatically)
     solvers = {
-        #"Trivial": tsp_bindings.TrivialSolver(),
+        "Trivial": tsp_bindings.TrivialSolver(),
         "AntSwarm": tsp_bindings.AntSwarmSolver(),
-        #"HeldKarp": tsp_bindings.HeldKarpSolver(),
+        "HeldKarp": tsp_bindings.HeldKarpSolver(),
     }
 
     # Dynamically track cumulative averages per solver
@@ -365,15 +365,15 @@ def main():
     SENSITIVITY_TOUR_SIZE = 100
 
     print("\nRuntime and tour quality scaling of AntSwarm on larger instances")
-    benchmark_multiple_instances_with_scaling(n_nodes_list=SCALING_TOUR_SIZES, n_instances=2)
+    benchmark_multiple_instances_with_scaling(n_nodes_list=EXACT_VS_ACO_SIZES, n_instances=2)
 
-    print("\nGenerating plots...")
-    visualize_multiple_instances_with_scaling(n_nodes_list=EXACT_VS_ACO_SIZES, n_instances=5, seed=SEED)
+    # print("\nGenerating plots...")
+    # visualize_multiple_instances_with_scaling(n_nodes_list=EXACT_VS_ACO_SIZES, n_instances=5, seed=SEED)
 
-    matrix, _ = generate_random_matrix(n_nodes=SENSITIVITY_TOUR_SIZE, seed=SEED)
+    # matrix, _ = generate_random_matrix(n_nodes=SENSITIVITY_TOUR_SIZE, seed=SEED)
     # visualize_alpha_sensitivity(matrix, fixed_beta=3.0, swarm_size=60, max_it=40, n_runs=5)
     # visualize_beta_sensitivity(matrix, fixed_alpha=1.0, swarm_size=60, max_it=40, n_runs=5)
-    visualize_alpha_beta_heatmap(matrix, swarm_size=250)
+    # visualize_alpha_beta_heatmap(matrix, swarm_size=250)
 
 
 

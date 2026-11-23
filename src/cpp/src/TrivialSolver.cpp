@@ -2,7 +2,6 @@
 #include <cstddef>
 #include <vector>
 #include <iostream>
-#include <fstream>
 
 std::vector<int> TrivialSolver:: solve(const LowerTriMatrix& matrix){
     // creating return tour
