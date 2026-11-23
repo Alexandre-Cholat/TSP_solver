@@ -3,48 +3,11 @@ import json
 from pathlib import Path
 from tsp_parsers import CoordParser, LowerTriParser
 import numpy as np
-import fast_engine
-
-
-# def main():
-    # build orchestrator here... can be broken into sub functions
-    # first decide which parser to use
-
-    # then parse. for testing : 
-    # parsed_array = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float64)
-
- 
-    # cpp calculates and returns an array of size dim +1
-    # output_array = fast_engine.solve_tsp(parsed_array)
-
-
-
-    # print output in proper format:
-    # output_array = np.array([ 1, 3, 5, 2, 4])   
-    # from [ 1, 3, 5, 2, 4] to:
-
-    # NAME : example.tour
-    # TYPE : TOUR
-    # DIMENSION : 5
-    # 1
-    # 3
-    # 5
-    # 2
-    # 4
-    # -1
-    # EOF
-
-
-
-
-
 import sys
 import os
 import argparse
-import numpy as np
 
-# Import your C++ Pybind11 module
-# Note: The .so library built by CMake must be accessible in your PYTHONPATH
+
 import tsp_bindings
 
 # Assuming your parser classes are saved in a file named `parsers.py`
