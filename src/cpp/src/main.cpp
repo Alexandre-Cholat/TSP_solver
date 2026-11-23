@@ -86,21 +86,21 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<Solver> solver;
     if (method == "trivial") {
         std::cout << "Running TrivialSolver...\n";
-        TrivialSolver solver;
-        tour = solver.solve(matrix);
-    }else if (method == "ants") {
+        solver = std::make_unique<TrivialSolver>();
+    } else if (method == "ants") {
         std::cout << "Running AntSwarmSolver...\n";
-        AntSwarmSolver solver;
-        tour = solver.solve(matrix);
-    }else if (method == "held-karp" || method == "heldkarp" || method == "hk") {
+        solver = std::make_unique<AntSwarmSolver>();
+    } else if (method == "held-karp" || method == "heldkarp" || method == "hk") {
         std::cout << "Running HeldKarpSolver...\n";
-        HeldKarpSolver solver;
-        tour = solver.solve(matrix);
+        solver = std::make_unique<HeldKarpSolver>();
     // add next algo here
-    }else {
+    } else {
         std::cout << "Error: Algorithm '" << method << "' doesnt exist.\n";
         return 1;
     }
+
+    // Single polymorphic solove(matrix) call 
+    tour = solver->solve(matrix);
 
     // write the output
     std::ofstream out_f(output_path);
